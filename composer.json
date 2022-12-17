@@ -1,0 +1,17 @@
+{
+    "name": "jallad/apex",
+    "autoload": {
+        "psr-4": {
+            "Apex\\": "."
+        }
+    },
+    "authors": [
+        {
+            "name": "Ahmad Jallad",
+            "email": "ahmadjalladx@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/var-dumper": "^6.2"
+    }
+}
