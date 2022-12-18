@@ -2,6 +2,9 @@
 declare(strict_types=1);
 
 namespace Apex\src;
+use Rakit\Validation\Validation;
+use Rakit\Validation\Validator;
+
 class Request
 {
     public function getPath(): string
@@ -55,5 +58,19 @@ class Request
             $res[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
         }
         return $res;
+    }
+
+    public function validate(array $data, array $rules, array $messages = []): Validation
+    {
+        return (new Validator)->validate($data, $rules, $messages);
+    }
+
+    /**
+     * @param Validator $validator
+     * @return Validator
+     */
+    public function getValidator(Validator $validator): Validator
+    {
+        return $validator;
     }
 }
