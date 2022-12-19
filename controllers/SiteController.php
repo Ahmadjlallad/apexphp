@@ -7,7 +7,7 @@ class SiteController extends Controller
 {
     public function storeContact(): bool|string
     {
-        return $this->view('contact', ['body' => $this->request->postParams()]);
+        return $this->view('contact', ['body' => $this->request->input()]);
     }
     public function showContact(): bool|string
     {

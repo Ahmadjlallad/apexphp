@@ -2,8 +2,8 @@
 
 namespace Apex\controllers;
 
+use Apex\models\User;
 use Apex\src\Controller\Controller;
-use Symfony\Component\VarDumper\VarDumper;
 
 class AuthController extends Controller
 {
@@ -14,16 +14,19 @@ class AuthController extends Controller
 
     public function storeLogin(): bool|string
     {
-        $validate = $this->request->validate($this->request->postParams(), ['password' => 'required|min:6', 'email' => 'required|email']);
-        return $this->view('login', ['errors' => $validate->errors()]);
+        return $this->view('login');
     }
 
-    public function showRegister(): bool|string
+    public function register(): bool|string
     {
-        return $this->view('register');
-    }
-    public function storeRegister(): bool|string
-    {
-        return $this->view('register');
+        $user = User::create();
+        $errors = null;
+        if ($this->request->isPost()) {
+            $user->fill($this->request->input());
+            $validate = $this->request->validate($this->request->input(), ['password' => 'required|min:6', 'email' => 'required|email']);
+            $errors = $validate->errors();
+
+        }
+        return $this->view('register', ['user' => $user, 'errors' => $errors]);
     }
 }

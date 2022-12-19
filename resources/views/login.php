@@ -6,7 +6,6 @@
 use Rakit\Validation\ErrorBag;
 
 $errors = $errors ?: []
-
 ?>
 <section class="h-screen">
     <div class="container px-6 py-12 h-full">

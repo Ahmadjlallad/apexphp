@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace Apex\src;
+
 use Rakit\Validation\Validation;
 use Rakit\Validation\Validator;
 
@@ -17,47 +18,30 @@ class Request
         return substr($path, 0, $position);
     }
 
+    public function input(string $prop = ''): array|null
+    {
+        $body = $_POST;
+        $inputType = INPUT_POST;
+
+        if ($this->getHttpMethod() !== 'post') {
+            $body = $_GET;
+            $inputType = INPUT_GET;
+        }
+        if (!empty($prop)) {
+            $prop = is_array($prop) ? $prop : [$prop];
+            $body = array_filter($body, fn($key) => in_array($key, $prop), ARRAY_FILTER_USE_KEY);
+        }
+        $res = [];
+
+        foreach ($body as $key => $value) {
+            $res[$key] = filter_input($inputType, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+        return $res;
+    }
+
     public function getHttpMethod(): string
     {
         return strtolower($_SERVER['REQUEST_METHOD']);
-    }
-
-    public function getParams(string $prop = ''): ?array
-    {
-        if ($this->getHttpMethod() !== 'get') {
-            return null;
-        }
-
-        $body = $_GET;
-        if (!empty($prop)) {
-            $prop = is_array($prop) ? $prop : [$prop];
-            $body = array_filter($body, fn($key) => in_array($key, $prop), ARRAY_FILTER_USE_KEY);
-        }
-        $res = [];
-
-        foreach ($body as $key => $value) {
-            $res[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
-        }
-        return $res;
-    }
-
-    public function postParams(string $prop = ''): array|null
-    {
-        if ($this->getHttpMethod() !== 'post') {
-            return null;
-        }
-
-        $body = $_POST;
-        if (!empty($prop)) {
-            $prop = is_array($prop) ? $prop : [$prop];
-            $body = array_filter($body, fn($key) => in_array($key, $prop), ARRAY_FILTER_USE_KEY);
-        }
-        $res = [];
-
-        foreach ($body as $key => $value) {
-            $res[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
-        }
-        return $res;
     }
 
     public function validate(array $data, array $rules, array $messages = []): Validation
@@ -65,12 +49,13 @@ class Request
         return (new Validator)->validate($data, $rules, $messages);
     }
 
-    /**
-     * @param Validator $validator
-     * @return Validator
-     */
-    public function getValidator(Validator $validator): Validator
+    public function isPost(): bool
     {
-        return $validator;
+        return $this->getHttpMethod() === 'post';
+    }
+
+    public function isGet(): bool
+    {
+        return $this->getHttpMethod() === 'get';
     }
 }

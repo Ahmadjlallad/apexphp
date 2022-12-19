@@ -2,7 +2,7 @@
 
 use JetBrains\PhpStorm\NoReturn;
 
-#[NoReturn] function IMPLEMENTED(): void
+#[NoReturn] function NOT_IMPLEMENTED(): void
 {
     dd('IMPLEMENTED');
 }
