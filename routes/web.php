@@ -10,5 +10,5 @@ Router::post('/contact', [SiteController::class, 'storeContact']);
 
 Router::get('/login', [AuthController::class, 'showLogin']);
 Router::post('/login', [AuthController::class, 'storeLogin']);
-Router::get('/register', [AuthController::class, 'showRegister']);
-Router::post('/register', [AuthController::class, 'storeRegister']);
+Router::get('/register', [AuthController::class, 'register']);
+Router::post('/register', [AuthController::class, 'register']);

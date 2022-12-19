@@ -39,9 +39,7 @@ class View
 
     private function getViewContent(string $view, array $params = []): bool|string
     {
-        foreach ($params as $key => $value) {
-            $$key = $value;
-        }
+        extract($params);
         ob_start();
         include_once App::$VIEWS_DIR . '/' . $view . '.php';
         $viewsContent = ob_get_clean();

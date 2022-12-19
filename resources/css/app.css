@@ -9,12 +9,12 @@
     transform-origin: 0%;
 }
 
-input:focus ~ label,
-input:not(:placeholder-shown) ~ label,
-textarea:focus ~ label,
-textarea:not(:placeholder-shown) ~ label,
-select:focus ~ label,
-select:not([value='']):valid ~ label {
+.register input:focus ~ label,
+.register input:not(:placeholder-shown) ~ label,
+.register textarea:focus ~ label,
+.register textarea:not(:placeholder-shown) ~ label,
+.register select:focus ~ label,
+.register select:not([value='']):valid ~ label {
     /* @apply transform; scale-75; -translate-y-6; */
     --tw-translate-x: 0;
     --tw-translate-y: 0;
@@ -28,10 +28,16 @@ select:not([value='']):valid ~ label {
     --tw-translate-y: -1.5rem;
 }
 
-input:focus ~ label,
-select:focus ~ label {
+.register input:focus ~ label,
+.register select:focus ~ label {
     /* @apply text-black; left-0; */
     --tw-text-opacity: 1;
     color: rgba(0, 0, 0, var(--tw-text-opacity));
     left: 0;
+}
+
+@layer components {
+    .register-inputs {
+        @apply pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-black border-gray-200;
+    }
 }
