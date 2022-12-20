@@ -6,6 +6,8 @@ namespace Apex\src\Router;
 use Apex\src\App;
 use Apex\src\Controller\Controller;
 use Closure;
+use ReflectionException;
+use ReflectionParameter;
 
 class Router extends AbstractRouter
 {
@@ -21,6 +23,9 @@ class Router extends AbstractRouter
         static::$routes['get'][$path] = $action;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function resolve()
     {
         $path = $this->request->getPath();
@@ -30,16 +35,27 @@ class Router extends AbstractRouter
             return App::getInstance()->view->view('404');
         }
         if (is_array($action)) {
-            /** @var Controller $controller */
             $controller = new $action[0];
-            return $controller->callAction($action[1]);
+            try {
+                /** @var Controller $controller */
+                $test = new ReflectionParameter($action, 0);
+                $class = null;
+                if (!$test->getType()->isBuiltin()) {
+                    $class = new ($test->getType()->getName());
+                }
+                return $controller->callAction($action[1], [$class]);
+            } catch (ReflectionException $exception) {
+                if ($exception->getCode() === 0) {
+                    return $controller->callAction($action[1]);
+                }
+                dd($exception);
+            }
         }
         if (is_string($action)) {
             return App::getInstance()->view->viewContent($action);
         }
         return call_user_func($action);
     }
-
 
 
 }
