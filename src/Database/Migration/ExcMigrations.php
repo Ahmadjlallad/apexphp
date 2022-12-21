@@ -26,11 +26,11 @@ class ExcMigrations
             if ($migration === '.' || $migration === '..') continue;
             $this->newMigrations[] = $migration;
             $this->log("Applying Migration $migration");
-            (new ($_ENV['MIGRATIONS_NAME_SPACE'] . '\\' . $migration))->up();
+            (new ($_ENV['MIGRATIONS_NAME_SPACE'] . '\\' . $migration)($this->pdo))->up();
             $this->log("Applied Migration $migration");
         }
         if (!empty($this->newMigrations)) {
-            $this->saveMigrations($this->newMigrations);
+//            $this->saveMigrations($this->newMigrations);
         } else {
             $this->log("All Migrations has been Applied");
         }
