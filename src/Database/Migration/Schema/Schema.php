@@ -7,149 +7,116 @@ namespace Apex\src\Database\Migration\Schema;
  */
 class Schema
 {
-    protected const INTEGER = 'INT';
-    protected const TINYINT = 'TINYINT';
-    protected const BIGINT = 'BIGINT';
-    protected const TEXT = 'TEXT';
-    protected const TIMESTAMPS = 'TIMESTAMPS';
-    protected const DATETIME = 'DATETIME';
-    protected const PRIMARY_KEY = 'PRIMARY KEY';
-    protected const AUTO_INCREMENT = 'AUTO_INCREMENT';
-    protected const NOT_NULL = 'NOT NULL';
-    protected const UNIQUE = 'UNIQUE';
-    protected const DEFAULT = 'DEFAULT';
-    protected const AFTER = 'AFTER';
-    protected const VARCHAR = 'VARCHAR';
+    private const INTEGER = 'INT';
+    private const TINYINT = 'TINYINT';
+    private const BIGINT = 'BIGINT';
+    private const TEXT = 'TEXT';
+    private const TIMESTAMPS = 'TIMESTAMPS';
+    private const DATETIME = 'DATETIME';
+    private const PRIMARY_KEY = 'PRIMARY KEY';
+    private const AUTO_INCREMENT = 'AUTO_INCREMENT';
+    private const VARCHAR = 'VARCHAR';
     /**
      * @var string
      */
     public string $statement = '';
 
     /**
-     * @return $this
+     * @return SchemaOptions
      */
-    public function timestamps(): static
+    public function timestamps(): SchemaOptions
     {
         $this->statement .= static::TIMESTAMPS . ' ';
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
-     * @return $this
+     * @return SchemaOptions
      */
-    public function datetime(): static
+    public function datetime(): SchemaOptions
     {
         $this->statement .= static::DATETIME . ' ';
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
-     * @return $this
+     * @return SchemaOptions
      */
-    public function text(): static
+    public function text(): SchemaOptions
     {
         $this->statement .= static::TEXT . ' ';
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
-     * @return $this
+     * @return SchemaOptions
      */
-    public function tinyint(): static
+    public function tinyint(): SchemaOptions
     {
         $this->statement .= static::TINYINT . ' ';
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
-     * @return $this
+     * @return SchemaOptions
      */
-    public function integer(): static
+    public function integer(): SchemaOptions
     {
         $this->statement .= static::INTEGER . ' ';
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
      * decimal db
      * @param int $pres
      * @param int $scale
-     * @return Schema
+     * @return SchemaOptions
      */
-    public function decimal(int $pres, int $scale): static
+    public function decimal(int $pres, int $scale): SchemaOptions
     {
         $this->statement .= "DECIMAL($pres, $scale) ";
-        return $this;
+        return new SchemaOptions($this->statement);
     }
 
     /**
      * varchar
      * @param int $length
-     * @return static
+     * @return SchemaOptions
      */
-    public function string(int $length = 255): static
+    public function string(int $length = 255): SchemaOptions
     {
         $this->statement .= static::VARCHAR . "($length) ";
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
      * enums
      * @param array $enumValues
-     * @return Schema
+     * @return SchemaOptions
      */
-    public function enum(array $enumValues): static
+    public function enum(array $enumValues): SchemaOptions
     {
         $enumValues = implode(', ', $enumValues);
         $this->statement .= "ENUM($enumValues) ";
-        return $this;
+        return new SchemaOptions($this->statement);
+
     }
 
     /**
      * @param bool $autoIncrement
-     * @return $this
+     * @return SchemaOptions
      */
-    public function primaryKey(bool $autoIncrement = true): static
+    public function primaryKey(bool $autoIncrement = true): SchemaOptions
     {
-        $this->statement .= sprintf('%s %s %s', static::BIGINT, static::PRIMARY_KEY, $autoIncrement ? static::AUTO_INCREMENT.' ' : '');
-        return $this;
-    }
+        $this->statement .= sprintf('%s %s %s', static::BIGINT, static::PRIMARY_KEY, $autoIncrement ? static::AUTO_INCREMENT . ' ' : '');
+        return new SchemaOptions($this->statement);
 
-    /**
-     * @return $this
-     */
-    public function notNull(): static
-    {
-        $this->statement .= static::NOT_NULL . ' ';
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function unique(): static
-    {
-        $this->statement .= static::UNIQUE . ' ';
-        return $this;
-    }
-
-    /**
-     * @param string $column
-     * @return $this
-     */
-    public function after(string $column): static
-    {
-        $this->statement .= static::AFTER . " $column ";
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function default(): static
-    {
-        $this->statement .= static::DEFAULT . ' ';
-        return $this;
     }
 
     /**

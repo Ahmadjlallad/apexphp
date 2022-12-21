@@ -11,8 +11,8 @@ class m0001_initial extends Migration
     {
         $s = new Schema();
         echo $this->create('test', [
-            'a' => $s->notNull()->primaryKey(),
-            'b' => (new Schema())->text()->notNull()
+            'a' => $s->string()->notNull()->default()->after('t'),
+            'b' => (new Schema())->text()->notNull(),
         ]);
     }
 

@@ -2,10 +2,13 @@
 
 namespace Apex\src\Database\Migration;
 
+use Apex\src\Database\Migration\Schema\Relations;
 use PDO;
 
 abstract class Migration
 {
+    private $saveStatements = [];
+
     public function __construct(public PDO $pdo)
     {
     }
@@ -30,5 +33,11 @@ abstract class Migration
         }
         $r = "CREATE TABLE $table \n(\n$data)" . PHP_EOL;
         return $r;
+    }
+
+    public function addForgenKey(string $table, string $pointsOn, string $fTable)
+    {
+        $relationSchema = new Relations();
+        $relationSchema->foreign($table)->references($fTable)->on($pointsOn);
     }
 }

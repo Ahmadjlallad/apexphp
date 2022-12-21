@@ -1,24 +1,31 @@
 <?php
 
 namespace Apex\src\Database\Migration\Schema;
-
+//TODO FIX FIRST
 class Relations
 {
-    protected const FOREIGN_KEY = 'FOREIGN KEY';
-    protected const REFERENCES = 'REFERENCES';
-    public string $statement = '';
+    private const FOREIGN_KEY = 'FOREIGN KEY';
+    private const REFERENCES = 'REFERENCES';
+    private const ALTER = 'ALTER';
+    private const TABLE = 'TABLE';
+    private const ADD = 'ADD';
+    private string $statement = '';
+    private $table = '';
 
     /**
-     * @param string $columnName
+     * "TableName ADD foreign key (key)";
+     * @param string $table
      * @return $this
      */
-    public function foreign(string $columnName): static
+    public function foreign(string $table): static
     {
-        $this->statement = static::FOREIGN_KEY . " $columnName ";
+        $this->table = $table;
+        $this->statement = sprintf(' %s %s %s ', $table, static::ADD, static::FOREIGN_KEY);
         return $this;
     }
 
     /**
+     *  REFERENCES test(a);
      * @param string $pointOn
      * @return $this
      */
@@ -43,6 +50,6 @@ class Relations
      */
     public function __toString(): string
     {
-        return $this->statement;
+        return sprintf();
     }
 }
