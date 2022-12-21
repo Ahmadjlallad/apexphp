@@ -3,6 +3,7 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Apex\src\App;
+use Apex\src\Database\Migration\ExcMigrations;
 
 $dotenv = Dotenv\Dotenv::createImmutable((__DIR__));
 $dotenv->load();
@@ -20,4 +21,5 @@ $config = [
 
 
 $app = new App($config);
-$app->db->appleyMigration();
+
+(new ExcMigrations($app->db->pdo))->applyMigration();

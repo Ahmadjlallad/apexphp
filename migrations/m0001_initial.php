@@ -1,13 +1,16 @@
 <?php
+namespace Apex\migrations;
 
-class m0001_initial
+use Apex\src\Database\Migration\Migration;
+
+class m0001_initial extends Migration
 {
-    public function up()
+    public function up(): void
     {
-        dd('up');
+        echo 'up';
     }
 
-    public function down()
+    public function down(): void
     {
 
     }
