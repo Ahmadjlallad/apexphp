@@ -34,10 +34,4 @@ abstract class Migration
         $r = "CREATE TABLE $table \n(\n$data)" . PHP_EOL;
         return $r;
     }
-
-    public function addForgenKey(string $table, string $pointsOn, string $fTable)
-    {
-        $relationSchema = new Relations();
-        $relationSchema->foreign($table)->references($fTable)->on($pointsOn);
-    }
 }

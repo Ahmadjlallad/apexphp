@@ -10,46 +10,47 @@ class Relations
     private const TABLE = 'TABLE';
     private const ADD = 'ADD';
     private string $statement = '';
-    private $table = '';
 
     /**
      * "TableName ADD foreign key (key)";
      * @param string $table
      * @return $this
      */
-    public function foreign(string $table): static
+    private function foreign(string $table): static
     {
-        $this->table = $table;
         $this->statement = sprintf(' %s %s %s ', $table, static::ADD, static::FOREIGN_KEY);
         return $this;
     }
 
     /**
      *  REFERENCES test(a);
-     * @param string $pointOn
+     * @param string $pointOnTable
+     * @param string $pointToColumn
      * @return $this
      */
-    public function references(string $pointOn): static
+    private function references(string $pointOnTable, string $pointToColumn): static
     {
-        $this->statement = static::REFERENCES . " $pointOn ";
+        $this->statement = static::REFERENCES . $pointOnTable . "($pointToColumn)";
         return $this;
     }
 
     /**
-     * @param string $pointAtTable
+     * @param string $pointAtColumn
      * @return $this
      */
-    public function on(string $pointAtTable): static
+    private function on(string $pointAtColumn): static
     {
-        $this->statement = "($pointAtTable)";
+        $this->statement = "($pointAtColumn)";
         return $this;
     }
 
     /**
+     * @param $option array{table: string, fTable: string, fColumn: string, pointsOn: string }
      * @return string
      */
-    public function __toString(): string
+    public function addForgeKey(array $option): string
     {
-        return sprintf();
+        $this->foreign($option['table'])->references($option['fTable'], $option['fColumn'])->on($option['pointsOn']);
+        return sprintf('%s %s %s', static::ALTER, static::TABLE, $this->statement);
     }
 }
