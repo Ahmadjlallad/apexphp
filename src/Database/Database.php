@@ -8,7 +8,8 @@ use PDOException;
 class Database
 {
     public PDO $pdo;
-    public function __construct(array $config)
+
+    public function __construct(array $config = [])
     {
         $dsn = sprintf('%s:host=%s;port=%s;dbname=%s',
             $config['type'],
@@ -23,6 +24,4 @@ class Database
             dd($exception);
         }
     }
-
-
 }

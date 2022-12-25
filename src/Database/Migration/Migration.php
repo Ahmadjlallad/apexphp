@@ -2,14 +2,15 @@
 
 namespace Apex\src\Database\Migration;
 
-use Apex\src\Database\Migration\Schema\Relations;
+use Apex\src\Database\Migration\Schema\Builder;
 use PDO;
+use Symfony\Component\VarDumper\VarDumper;
 
 abstract class Migration
 {
-    private $saveStatements = [];
+    private array $savedStatements = [];
 
-    public function __construct(public PDO $pdo)
+    public function __construct(public PDO $pdo, private readonly Builder $schemaBuilder)
     {
     }
 
@@ -17,21 +18,40 @@ abstract class Migration
 
     abstract public function down(): void;
 
+    public function save(): void
+    {
+        $statement = implode(";", $this->savedStatements);
+        VarDumper::dump($statement);
+        $this->pdo->exec($statement);
+    }
+
     /**
      * create table
      * @param string $table
-     * @param array $columns
-     * @return string
+     * @param array $columns array{string: string}
+     * @return Void
      */
-    public function create(string $table, array $columns): string
+    public function createTable(string $table, array $columns): void
     {
-        $i = 0;
-        $data = '';
-        foreach ($columns as $columnName => $columnProprieties) {
-            $data .= sprintf("\t%s %s%s", $columnName, $columnProprieties, $i < count($columns) - 1 ? ",\n" : "\n");
-            $i++;
-        }
-        $r = "CREATE TABLE $table \n(\n$data)" . PHP_EOL;
-        return $r;
+        $this->savedStatements[] = $this->schemaBuilder->create($table, $columns);
+    }
+
+    /**
+     * @param string $table
+     * @param array $columns array{string: string}
+     * @return void
+     */
+    public function createTableIfNotExiest(string $table, array $columns): void
+    {
+        $this->savedStatements[] = $this->schemaBuilder->create($table, $columns, true);
+    }
+
+    /**
+     * @param $foreignKeyConfig array{table: string, fTable: string, fColumn: string, pointsOn: string }
+     * @return void
+     */
+    public function createForeginKey(array $foreignKeyConfig): void
+    {
+        $this->savedStatements[] = $this->schemaBuilder->addForeignKey($foreignKeyConfig);
     }
 }

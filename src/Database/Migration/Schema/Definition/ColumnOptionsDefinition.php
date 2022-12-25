@@ -1,13 +1,18 @@
 <?php
 
-namespace Apex\src\Database\Migration\Schema;
+namespace Apex\src\Database\Migration\Schema\Definition;
 
-class SchemaOptions
+use Apex\src\Database\Migration\MigrationsTrait\Sanitize;
+
+class ColumnOptionsDefinition
 {
+    use Sanitize;
+
     private const NOT_NULL = 'NOT NULL';
     private const UNIQUE = 'UNIQUE';
     private const AFTER = 'AFTER';
     private const DEFAULT = 'DEFAULT';
+    private const ON_UPDATE = 'ON UPDATE';
 
     public function __construct(private string $statement)
     {
@@ -37,16 +42,26 @@ class SchemaOptions
      */
     public function after(string $column): static
     {
+        $column = $this->sanitizeString($column);
         $this->statement .= static::AFTER . " $column ";
         return $this;
     }
 
     /**
+     * @param string $default
+     * @param DefaultType $type enum builtin|string|int
      * @return $this
      */
-    public function default(): static
+    public function default(string $default, DefaultType $type = DefaultType::STRING): static
     {
-        $this->statement .= static::DEFAULT . ' ';
+        $default = $this->sanitizeString($default);
+        $this->statement .= sprintf("%s %s ", static::DEFAULT, $type === DefaultType::STRING ? "$default" : $default);
+        return $this;
+    }
+
+    public function onUpdate(string $action): static
+    {
+        $this->statement .= sprintf('%s %s ', static::ON_UPDATE, $this->sanitizeString($action));
         return $this;
     }
 

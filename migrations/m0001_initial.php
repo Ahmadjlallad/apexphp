@@ -3,19 +3,25 @@
 namespace Apex\migrations;
 
 use Apex\src\Database\Migration\Migration;
-use Apex\src\Database\Migration\Schema\Relations;
-use Apex\src\Database\Migration\Schema\Schema;
+use Apex\src\Database\Migration\Schema\Definition\Column;
+use Apex\src\Database\Migration\Schema\Definition\ColumnDefinition;
+use Apex\src\Database\Migration\Schema\Definition\DefaultType;
 
 class m0001_initial extends Migration
 {
     public function up(): void
     {
-        $s = new Schema();
-        echo $this->create('test', [
-            'a' => $s->string()->notNull()->default()->after('t'),
-            'b' => (new Schema())->text()->notNull(),
+        $this->createTable('users', [
+            'id' => Column::add()->primaryKey(),
+            'name' => Column::add()->string(),
+            'email' => Column::add()->string()->unique()->notNull(),
+            'birth_date' => Column::add()->datetime(),
+            'password' => Column::add()->string()->notNull(),
+            'created_at' => Column::add()->timestamps()->default(ColumnDefinition::CURRENT_TIMESTAMP, DefaultType::BUILTIN),
+            'updated_at' => Column::add()->timestamps()
+                ->default(ColumnDefinition::CURRENT_TIMESTAMP, DefaultType::BUILTIN)
+                ->onUpdate(ColumnDefinition::CURRENT_TIMESTAMP)
         ]);
-        echo (new Relations())->addForgeKey(['table' => 'test', 'fTable' => 'migrations', 'fColumn' => 'migration', 'pointsOn' => 'a']);
     }
 
     public function down(): void

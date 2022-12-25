@@ -6,7 +6,9 @@ namespace Apex\src;
 use Apex\src\Database\Database;
 use Apex\src\Router\Router;
 use Apex\src\View\View;
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use ReflectionException;
 
 class App
 {
@@ -44,11 +46,16 @@ class App
 
     public function run(): void
     {
-        $res = $this->router->resolve();
-        if (!$res) {
-            $this->response->setStatus(404);
-            dd('VIEW NOT FOUND you maybe forget to return form controller');
+        try {
+            $res = $this->router->resolve();
+            if (!$res) {
+                $this->response->setStatus(404);
+                dd('VIEW NOT FOUND you maybe forget to return form controller');
+            }
+            echo $res;
+        } catch (Exception $exception) {
+            dd($exception);
         }
-        echo $res;
+
     }
 }
