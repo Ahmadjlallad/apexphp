@@ -1,0 +1,11 @@
+<?php
+
+namespace Apex\models;
+
+use Apex\src\Model\Model;
+
+@docBlock
+class @modelName extends Model
+{
+    // logic
+}

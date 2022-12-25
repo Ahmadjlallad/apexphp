@@ -4,10 +4,11 @@ namespace Apex\controllers;
 
 use Apex\models\User;
 use Apex\src\Controller\Controller;
+use Apex\src\Request;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(string|null $i)
     {
         return $this->view('login');
     }
@@ -17,9 +18,10 @@ class AuthController extends Controller
         return $this->view('login');
     }
 
-    public function register(): bool|string
+    public function register(Request $request): bool|string
     {
-        $user = User::create();
+        $user = User::create(['name' => 'ahmad']);
+        dd($user->created_at);
         $errors = null;
         if ($this->request->isPost()) {
             $user->fill($this->request->input());
