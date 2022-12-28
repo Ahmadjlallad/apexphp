@@ -15,10 +15,23 @@ abstract class Model
     public $errorMessage = [];
     protected $primaryKey = 'id';
     protected string $table = '';
+    protected array $attributes = [];
+    protected bool $exists = false;
+    private Builder $_builder;
+    private PDO $connection;
+    protected array $fillable = [];
+    protected array $guarded = ['name'];
 
     public function __construct()
     {
         $this->boot();
+    }
+
+    private function boot(): void
+    {
+        $this->setBuilder(new Builder($this));
+//        $this->getColumns();
+
     }
 
     static public function create(array $attributes = []): static
@@ -30,24 +43,13 @@ abstract class Model
 
     public function fill(array $attributes): void
     {
-        foreach ($attributes as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
+        $fillable = $this->fillableFromArray($attributes);
+        foreach ($fillable as $key => $value) {
+            if (!$this->isFillable($key)) {
+                $this->attributes[$key] = $value;
             }
         }
     }
-
-    public function where()
-    {
-        NOT_IMPLEMENTED();
-    }
-
-    public function save()
-    {
-        NOT_IMPLEMENTED();
-    }
-
-    private PDO $connection;
 
     /**
      * Get all the models from the database.
@@ -62,22 +64,77 @@ abstract class Model
         );
     }
 
+    public function query(): Builder
+    {
+        return new Builder($this);
+    }
+
+    static function select()
+    {
+        NOT_IMPLEMENTED();
+    }
+
+    /**
+     * @return Builder
+     */
+    protected function getBuilder(): Builder
+    {
+        return $this->_builder;
+    }
+
+    /**
+     * @param Builder $builder
+     */
+    protected function setBuilder(Builder $builder): void
+    {
+        $this->_builder = $builder;
+    }
+
+    public function where()
+    {
+        NOT_IMPLEMENTED();
+    }
+
+    public function save(): void
+    {
+        try {
+            if ($this->exists) {
+                $this->update();
+            }
+            $sql = $this->getBuilder()->prepareSqlInsert($this->attributes);
+            $insartStatement = $this->connection->prepare($sql);
+            $bindings = $this->prepareInsartBindings();
+            foreach ($bindings as $index => $value) {
+                $insartStatement->bindValue($index + 1, "'$value'");
+            }
+
+            dd($insartStatement->execute());
+        } catch (PDOException $exception) {
+            dd($exception);
+        }
+    }
+
     public function find()
     {
 
     }
 
-    public static function query(): Builder
+    public function __get(string $name)
     {
-        return new Builder();
+        if (!empty($this->attributes[$name])) {
+            return $this->attributes[$name];
+        }
+        return null;
     }
 
-    /**
-     * @return PDO
-     */
-    public function getConnection(): PDO
+    public function __set(string $name, $value): void
     {
-        return App::getInstance()->db->pdo;
+        $this->$name = $value;
+    }
+
+    public function setConnection(PDO $pdo): void
+    {
+        $this->connection = $pdo;
     }
 
     private function getColumns(): void
@@ -95,9 +152,12 @@ abstract class Model
         }
     }
 
-    private function boot(): void
+    /**
+     * @return PDO
+     */
+    public function getConnection(): PDO
     {
-        $this->getColumns();
+        return App::getInstance()->db->pdo;
     }
 
     /**
@@ -107,18 +167,84 @@ abstract class Model
     {
         if (empty($this->table)) {
             $reflect = new ReflectionClass(static::class);
-            return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $reflect->getShortName()));
+            $this->table = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $reflect->getShortName()));
         }
         return $this->table;
     }
 
-    public function __set(string $name, $value): void
+    private function isGarded(): bool
     {
-        $this->$name = $value;
+        return count($this->guarded) > 0;
     }
 
-    public function __get(string $name)
+    private function fa()
     {
-        return $this->$name;
     }
+
+    public function getFillable()
+    {
+        return $this->fillable;
+    }
+
+    public function isFillable($key)
+    {
+        if (in_array($key, $this->getFillable())) {
+            return true;
+        }
+
+        if ($this->isGuarded($key)) {
+            return false;
+        }
+
+        return empty($this->getFillable());
+    }
+
+    /**
+     * Determine if the given key is guarded.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function isGuarded(string $key): bool
+    {
+
+        if (empty($this->getGuarded())) {
+            return false;
+        }
+        return $this->getGuarded() == ['*'] ||
+            !empty(preg_grep('/^' . preg_quote($key, '/') . '$/i', $this->getGuarded()));
+    }
+
+    private function getGuarded(): array
+    {
+        return $this->guarded;
+    }
+
+    private function fillableFromArray(array $attributes): array
+    {
+        if (!empty($this->getFillable())) {
+            return array_intersect_key($attributes, $this->getFillable());
+        }
+        return $attributes;
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     */
+    public function setAttribute(string $key, string $value): void
+    {
+        $this->attributes[$key] = $value;
+    }
+
+    public function update()
+    {
+        NOT_IMPLEMENTED();
+    }
+
+    private function prepareInsartBindings(): array
+    {
+        return array_values($this->attributes);
+    }
+
 }

@@ -21,7 +21,7 @@ class AuthController extends Controller
     public function register(Request $request): bool|string
     {
         $user = User::create(['name' => 'ahmad']);
-        dd($user->created_at);
+        dd($user->save());
         $errors = null;
         if ($this->request->isPost()) {
             $user->fill($this->request->input());
