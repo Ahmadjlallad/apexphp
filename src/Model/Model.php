@@ -5,22 +5,21 @@ namespace Apex\src\Model;
 
 use Apex\src\App;
 use Apex\src\Database\Query\Builder;
-use Apex\src\Database\Query\ColumnBlueprint;
 use PDO;
 use PDOException;
 use ReflectionClass;
 
 abstract class Model
 {
-    public $errorMessage = [];
+    public ErrorBag $errorMessage;
     protected $primaryKey = 'id';
     protected string $table = '';
     protected array $attributes = [];
     protected bool $exists = false;
-    private Builder $_builder;
-    private PDO $connection;
     protected array $fillable = [];
-    protected array $guarded = ['name'];
+    protected array $guarded = [];
+    protected Builder $_builder;
+    protected PDO $connection;
 
     public function __construct()
     {
@@ -30,8 +29,7 @@ abstract class Model
     private function boot(): void
     {
         $this->setBuilder(new Builder($this));
-//        $this->getColumns();
-
+        $this->errorMessage = new ErrorBag();
     }
 
     static public function create(array $attributes = []): static
@@ -45,10 +43,65 @@ abstract class Model
     {
         $fillable = $this->fillableFromArray($attributes);
         foreach ($fillable as $key => $value) {
-            if (!$this->isFillable($key)) {
-                $this->attributes[$key] = $value;
+            if ($this->isFillable($key)) {
+                $this->setAttribute($key, $value);
             }
         }
+    }
+
+    private function fillableFromArray(array $attributes): array
+    {
+        if (!empty($this->getFillable())) {
+            return array_intersect_key($attributes, array_fill_keys($this->getFillable(), 1));
+        }
+        return $attributes;
+    }
+
+    public function getFillable(): array
+    {
+        return $this->fillable;
+    }
+
+    public function isFillable($key): bool
+    {
+        if (in_array($key, $this->getFillable())) {
+            return true;
+        }
+
+        if ($this->isGuarded($key)) {
+            return false;
+        }
+        return empty($this->getFillable());
+    }
+
+    /**
+     * Determine if the given key is guarded.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function isGuarded(string $key): bool
+    {
+
+        if (empty($this->getGuarded())) {
+            return false;
+        }
+        return $this->getGuarded() == ['*'] ||
+            !empty(preg_grep('/^' . preg_quote($key, '/') . '$/i', $this->getGuarded()));
+    }
+
+    private function getGuarded(): array
+    {
+        return $this->guarded;
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     */
+    public function setAttribute(string $key, string $value): void
+    {
+        $this->attributes[$key] = $value;
     }
 
     /**
@@ -74,6 +127,45 @@ abstract class Model
         NOT_IMPLEMENTED();
     }
 
+    public function where()
+    {
+        NOT_IMPLEMENTED();
+    }
+
+    public function save(): bool
+    {
+        try {
+            if ($this->exists) {
+                $this->update();
+            }
+            $sql = $this->getBuilder()->prepareSqlInsert($this->attributes);
+            $insertStatement = $this->connection->prepare($sql);
+            $bindings = $this->prepareInsertBindings();
+            foreach ($bindings as $index => $value) {
+                $insertStatement->bindValue($index + 1, "$value");
+            }
+            return $insertStatement->execute();
+        } catch (PDOException $exception) {
+            $this->errorMessage->addError('*', $exception->getMessage());
+            return false;
+        }
+    }
+
+    public function update()
+    {
+
+
+
+
+
+
+
+
+
+        $this->getBuilder()->prepareSqlInsert($this->attributes);
+        NOT_IMPLEMENTED();
+    }
+
     /**
      * @return Builder
      */
@@ -90,33 +182,14 @@ abstract class Model
         $this->_builder = $builder;
     }
 
-    public function where()
+    private function prepareInsertBindings(): array
+    {
+        return array_values($this->attributes);
+    }
+
+    public function find(): void
     {
         NOT_IMPLEMENTED();
-    }
-
-    public function save(): void
-    {
-        try {
-            if ($this->exists) {
-                $this->update();
-            }
-            $sql = $this->getBuilder()->prepareSqlInsert($this->attributes);
-            $insartStatement = $this->connection->prepare($sql);
-            $bindings = $this->prepareInsartBindings();
-            foreach ($bindings as $index => $value) {
-                $insartStatement->bindValue($index + 1, "'$value'");
-            }
-
-            dd($insartStatement->execute());
-        } catch (PDOException $exception) {
-            dd($exception);
-        }
-    }
-
-    public function find()
-    {
-
     }
 
     public function __get(string $name)
@@ -129,27 +202,7 @@ abstract class Model
 
     public function __set(string $name, $value): void
     {
-        $this->$name = $value;
-    }
-
-    public function setConnection(PDO $pdo): void
-    {
-        $this->connection = $pdo;
-    }
-
-    private function getColumns(): void
-    {
-        try {
-            $columnsStatement = $this->getConnection()->query('DESCRIBE ' . $this->getTable());
-            $columnsStatement->execute();
-            /** @var ColumnBlueprint[] $columns */
-            $columns = $columnsStatement->fetchAll(PDO::FETCH_CLASS);
-            foreach ($columns as $column) {
-                $this->{$column->Field} = null;
-            }
-        } catch (PDOException $e) {
-            dd($e);
-        }
+        $this->attributes[$name] = $value;
     }
 
     /**
@@ -158,6 +211,11 @@ abstract class Model
     public function getConnection(): PDO
     {
         return App::getInstance()->db->pdo;
+    }
+
+    public function setConnection(PDO $pdo): void
+    {
+        $this->connection = $pdo;
     }
 
     /**
@@ -171,80 +229,4 @@ abstract class Model
         }
         return $this->table;
     }
-
-    private function isGarded(): bool
-    {
-        return count($this->guarded) > 0;
-    }
-
-    private function fa()
-    {
-    }
-
-    public function getFillable()
-    {
-        return $this->fillable;
-    }
-
-    public function isFillable($key)
-    {
-        if (in_array($key, $this->getFillable())) {
-            return true;
-        }
-
-        if ($this->isGuarded($key)) {
-            return false;
-        }
-
-        return empty($this->getFillable());
-    }
-
-    /**
-     * Determine if the given key is guarded.
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function isGuarded(string $key): bool
-    {
-
-        if (empty($this->getGuarded())) {
-            return false;
-        }
-        return $this->getGuarded() == ['*'] ||
-            !empty(preg_grep('/^' . preg_quote($key, '/') . '$/i', $this->getGuarded()));
-    }
-
-    private function getGuarded(): array
-    {
-        return $this->guarded;
-    }
-
-    private function fillableFromArray(array $attributes): array
-    {
-        if (!empty($this->getFillable())) {
-            return array_intersect_key($attributes, $this->getFillable());
-        }
-        return $attributes;
-    }
-
-    /**
-     * @param string $key
-     * @param string $value
-     */
-    public function setAttribute(string $key, string $value): void
-    {
-        $this->attributes[$key] = $value;
-    }
-
-    public function update()
-    {
-        NOT_IMPLEMENTED();
-    }
-
-    private function prepareInsartBindings(): array
-    {
-        return array_values($this->attributes);
-    }
-
 }

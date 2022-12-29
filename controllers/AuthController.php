@@ -8,7 +8,7 @@ use Apex\src\Request;
 
 class AuthController extends Controller
 {
-    public function showLogin(string|null $i)
+    public function showLogin(): bool|string
     {
         return $this->view('login');
     }
@@ -20,15 +20,13 @@ class AuthController extends Controller
 
     public function register(Request $request): bool|string
     {
-        $user = User::create(['name' => 'ahmad']);
-        dd($user->save());
-        $errors = null;
+        $user = User::create();
         if ($this->request->isPost()) {
             $user->fill($this->request->input());
-            $validate = $this->request->validate($this->request->input(), ['password' => 'required|min:6', 'email' => 'required|email']);
-            $errors = $validate->errors();
-
+            $user->save();
+            $validate = $this->request->validate($this->request->input(), ['password' => 'required|min:6', 'email' => 'required|email', 'confirm_password'=> 'required|same:password']);
+            $user->errorMessage->margeErrorBadges($validate->errors());
         }
-        return $this->view('register', ['user' => $user, 'errors' => $errors]);
+        return $this->view('register', ['user' => $user]);
     }
 }

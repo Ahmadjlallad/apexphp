@@ -41,4 +41,9 @@ class Builder
     {
         return implode(', ', array_map(fn($value) => "`$value`", array_keys($values)));
     }
+    public function prepareUpdate()
+    {
+        $table = $this->model->getTable();
+
+    }
 }

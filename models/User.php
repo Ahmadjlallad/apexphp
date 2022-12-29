@@ -15,5 +15,7 @@ use Apex\src\Model\Model;
  */
 class User extends Model
 {
-    //logic
+
+    public string|null $confirm_password = null;
+    protected array $fillable = ['name', 'password', 'email', 'birth_date'];
 }
