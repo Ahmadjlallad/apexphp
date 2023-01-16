@@ -5,10 +5,9 @@ namespace Apex\src;
 
 use Apex\src\Database\Database;
 use Apex\src\Router\Router;
+use Apex\src\Session\Session;
 use Apex\src\View\View;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
-use ReflectionException;
 
 class App
 {
@@ -22,7 +21,7 @@ class App
     public View $view;
     public Database $db;
 
-    #[NoReturn] public function __construct($config = [])
+    public function __construct($config = [])
     {
         self::$ROOT_DIR = $config['ROOT_DIR'] ?? dirname(__DIR__);
         self::$VIEWS_DIR = $config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
@@ -32,6 +31,7 @@ class App
         $this->router = new Router();
         $this->view = new View();
         $this->db = new Database($config['db'] ?? static::$config['db']);
+        $this->session = new Session();
         static::$config = $config;
     }
 
