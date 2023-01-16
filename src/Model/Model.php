@@ -4,6 +4,7 @@ namespace Apex\src\Model;
 
 
 use Apex\src\App;
+use Apex\src\Database\Processor;
 use Apex\src\Database\Query\Builder;
 use PDO;
 use PDOException;
@@ -12,22 +13,26 @@ use ReflectionClass;
 abstract class Model
 {
     public ErrorBag $errorMessage;
-    protected $primaryKey = 'id';
+    public string $primaryKey = 'id';
     protected string $table = '';
     protected array $attributes = [];
-    protected bool $exists = false;
+    public bool $exists = false;
     protected array $fillable = [];
     protected array $guarded = [];
     protected Builder $_builder;
     protected PDO $connection;
+    protected array $original = [];
+    private readonly Processor $processor;
 
     public function __construct()
     {
         $this->boot();
+        $this->processor = new Processor($this->connection);
     }
 
     private function boot(): void
     {
+        $this->getTable();
         $this->setBuilder(new Builder($this));
         $this->errorMessage = new ErrorBag();
     }
@@ -39,12 +44,12 @@ abstract class Model
         return $model;
     }
 
-    public function fill(array $attributes): void
+    public function fill(array $attributes, $original = false): void
     {
-        $fillable = $this->fillableFromArray($attributes);
+        $fillable = !$original ? $this->fillableFromArray($attributes) : $attributes;
         foreach ($fillable as $key => $value) {
-            if ($this->isFillable($key)) {
-                $this->setAttribute($key, $value);
+            if ($this->isFillable($key) || $original) {
+                $this->setAttribute($key, $value, $original);
             }
         }
     }
@@ -98,9 +103,13 @@ abstract class Model
     /**
      * @param string $key
      * @param string $value
+     * @param bool $original
      */
-    public function setAttribute(string $key, string $value): void
+    public function setAttribute(string $key, mixed $value, bool $original = false): void
     {
+        if ($original) {
+            $this->original[$key] = $value;
+        }
         $this->attributes[$key] = $value;
     }
 
@@ -112,9 +121,41 @@ abstract class Model
      */
     public static function all(array $columns = ['*']): array|string
     {
-        return static::query()->get(
-            is_array($columns) ? $columns : func_get_args()
-        );
+        return static::select(is_array($columns) ? $columns : func_get_args())->get();
+    }
+
+    /**
+     * @return array<static>
+     */
+    public function get($howMany = INF, $skip = 0): array
+    {
+        // TODO Refactor this into the processor
+        $sql = $this->getBuilder()->prepareGetStatement();
+        $statement = $this->getConnection()->prepare($sql);
+        $bindings = $this->getBuilder()->bindings['where'];
+        foreach ($bindings as $i => $binding) {
+            $statement->bindValue($i + 1, $binding);
+            $sql = substr_replace($sql, $binding, strpos($sql, '?'));
+        }
+        $statement->execute();
+        $models = [];
+        try {
+            foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $modelValues) {
+                $model = static::prepareModel($modelValues);
+                $models[] = $model;
+            }
+            return $models;
+        } catch (PDOException $e) {
+            dd($e, $sql);
+        }
+    }
+
+    static private function prepareModel(array $modelValues): static
+    {
+        $model = new static();
+        $model->exists = true;
+        $model->fill($modelValues, true);
+        return $model;
     }
 
     public function query(): Builder
@@ -122,50 +163,48 @@ abstract class Model
         return new Builder($this);
     }
 
-    static function select()
+    static function select(string|array $columns = ['*']): static
     {
-        NOT_IMPLEMENTED();
+        $model = new static();
+        $model->exists = true;
+        $model->getBuilder()->prepareSelect($columns);
+        return $model;
     }
 
-    public function where()
+
+    /**
+     * {string: condition, string: property, string: value}
+     * @param array|string|callable $column
+     * @param string|null $conditions
+     * @param mixed $value
+     * @param string $boolean
+     * @return Model
+     */
+    public function where(array|string|callable $column, string|null $conditions = null, mixed $value = null, string $boolean = 'and'): static
     {
-        NOT_IMPLEMENTED();
+        $this->getBuilder()->prepareWhere($column, $conditions, $value, $boolean);
+        return $this;
     }
 
     public function save(): bool
     {
         try {
-            if ($this->exists) {
-                $this->update();
-            }
-            $sql = $this->getBuilder()->prepareSqlInsert($this->attributes);
-            $insertStatement = $this->connection->prepare($sql);
+            $insertStatement = $this->connection->prepare($this->getBuilder()->prepareInsertUpdateStatement($this->attributes, $this->original));
             $bindings = $this->prepareInsertBindings();
             foreach ($bindings as $index => $value) {
                 $insertStatement->bindValue($index + 1, "$value");
             }
-            return $insertStatement->execute();
+            $res = $insertStatement->execute();
+            if (!$this->exists) {
+                $id = $this->connection->lastInsertId();
+                $this->setAttribute($this->primaryKey, $id);
+            }
+            return $res;
         } catch (PDOException $exception) {
             $this->errorMessage->addError('*', $exception->getMessage());
             return false;
         }
     }
-
-    public function update()
-    {
-
-
-
-
-
-
-
-
-
-        $this->getBuilder()->prepareSqlInsert($this->attributes);
-        NOT_IMPLEMENTED();
-    }
-
     /**
      * @return Builder
      */
@@ -184,7 +223,7 @@ abstract class Model
 
     private function prepareInsertBindings(): array
     {
-        return array_values($this->attributes);
+        return array_values(array_diff_assoc($this->attributes, $this->original));
     }
 
     public function find(): void
@@ -202,7 +241,9 @@ abstract class Model
 
     public function __set(string $name, $value): void
     {
-        $this->attributes[$name] = $value;
+        if ($this->isFillable($name)) {
+            $this->setAttribute($name, $value);
+        }
     }
 
     /**
@@ -228,5 +269,23 @@ abstract class Model
             $this->table = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $reflect->getShortName()));
         }
         return $this->table;
+    }
+
+    public function orWhere(string $column, string $condition, mixed $value): static
+    {
+        $this->where($column, $condition, $value, 'or');
+        return $this;
+    }
+
+    public function orWhereIn(string $column, mixed $value): static
+    {
+        $this->where($column, 'IN', $value, 'or');
+        return $this;
+    }
+
+    public function firstWhere(string $column, string $condition, mixed $value): static|null
+    {
+        $this->where(...func_get_args());
+        return $this->get()[0];
     }
 }

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Apex\src;
 
+use Apex\src\Model\Validation\Validator;
 use Rakit\Validation\Validation;
-use Rakit\Validation\Validator;
 
 class Request
 {
