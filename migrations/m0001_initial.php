@@ -11,7 +11,7 @@ class m0001_initial extends Migration
 {
     public function up(): void
     {
-        $this->createTable('users', [
+        $this->createTable('user', [
             'id' => Column::add()->primaryKey(),
             'name' => Column::add()->string(),
             'email' => Column::add()->string()->unique()->notNull(),

@@ -6,9 +6,14 @@ use Apex\src\Model\Model;
 
 class Form
 {
-    public static function begin(string $method, string $action = ''): Form
+    /**
+     * @param $config array<{string: string, string:action, array:options}>
+     * @return Form
+     */
+    public static function begin(array $config): Form
     {
-        echo sprintf('<form action="%s" method="%s">', $action, $method);
+        $options = implode(' ', array_map(fn($key, $value): string => "$key='$value'", array_keys($config['options']), array_values($config['options'])));
+        echo sprintf('<form action="%s" method="%s" %s>', $config['action'] ?? '', $config['method'], $options);
         return new Form();
     }
 
@@ -16,6 +21,7 @@ class Form
     {
         return '</form>';
     }
+
     public function field(Model $model, $attr, array $options): Field
     {
         return new Field($model, $attr, $options);
