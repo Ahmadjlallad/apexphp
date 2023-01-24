@@ -286,6 +286,9 @@ abstract class Model
     public function firstWhere(string $column, string $condition, mixed $value): static|null
     {
         $this->where(...func_get_args());
+        if (empty($this->get())) {
+            return null;
+        }
         return $this->get()[0];
     }
 }

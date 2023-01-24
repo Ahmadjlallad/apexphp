@@ -18,6 +18,7 @@ class App
     public Router $router;
     public Request $request;
     public Response $response;
+    public Session $session;
     public View $view;
     public Database $db;
 
@@ -26,12 +27,12 @@ class App
         self::$ROOT_DIR = $config['ROOT_DIR'] ?? dirname(__DIR__);
         self::$VIEWS_DIR = $config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
         static::$instance = $this;
+        $this->session = new Session();
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router();
         $this->view = new View();
         $this->db = new Database($config['db'] ?? static::$config['db']);
-        $this->session = new Session();
         static::$config = $config;
     }
 
@@ -48,14 +49,9 @@ class App
     {
         try {
             $res = $this->router->resolve();
-            if (!$res) {
-                $this->response->setStatus(404);
-                dd('VIEW NOT FOUND you maybe forget to return form controller');
-            }
-            echo $res;
+            $res->processResponse();
         } catch (Exception $exception) {
             dd($exception);
         }
-
     }
 }

@@ -10,7 +10,7 @@ use Rakit\Validation\RuleNotFoundException;
 
 class AuthController extends Controller
 {
-    public function showLogin(): bool|string
+    public function showLogin():  \Apex\src\Response
     {
 //        $user = User::select()
 //            ->where('id', '=', 1)
@@ -22,7 +22,6 @@ class AuthController extends Controller
 //            ]);
 //        $user->name = 'ahmad joj';
 //        $user->save();
-        dd($user);
 
         return $this->view('login');
     }
@@ -35,7 +34,7 @@ class AuthController extends Controller
     /**
      * @throws RuleNotFoundException
      */
-    public function register(Request $request): bool|string
+    public function register(Request $request): \Apex\src\Response
     {
         $user = User::create();
         if ($this->request->isPost()) {

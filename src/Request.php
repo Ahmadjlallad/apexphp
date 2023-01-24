@@ -4,10 +4,18 @@ declare(strict_types=1);
 namespace Apex\src;
 
 use Apex\src\Model\Validation\Validator;
+use Apex\src\Session\Session;
 use Rakit\Validation\Validation;
 
 class Request
 {
+    private Session $session;
+
+    public function __construct()
+    {
+        $this->session = App::getInstance()->session;
+    }
+
     public function getPath(): string
     {
         $path = $_SERVER['REQUEST_URI'] ?? '/';
@@ -16,6 +24,27 @@ class Request
             return $path;
         }
         return substr($path, 0, $position);
+    }
+
+    public function validateWithBagName(string $name, array $data, array $rules, array $messages = []): bool|Response
+    {
+        $validation = (new Validator)->validate($data, $rules, $messages);
+        if ($validation->fails()) {
+            $this->session->setFlash($name, $validation->errors());
+            return App::getInstance()->response->back();
+        }
+        return true;
+    }
+
+    public function sessionValidate(array $data, array $rules, array $messages = []): bool|Response
+    {
+        $validation = (new Validator)->validate($data, $rules, $messages);
+        if ($validation->fails()) {
+            $this->session->setFlash('errors', $validation->errors());
+            $this->session->setFlash('params', $this->input());
+            return App::getInstance()->response->back();
+        }
+        return true;
     }
 
     public function input(string $prop = ''): array|null

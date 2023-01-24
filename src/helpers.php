@@ -1,9 +1,12 @@
 <?php
 
-use JetBrains\PhpStorm\NoReturn;
+use Apex\src\App;
+use Apex\src\Model\Validation\Validator;
+use Rakit\Validation\ErrorBag;
+use Rakit\Validation\Rule;
 use Rakit\Validation\RuleNotFoundException;
 
-#[NoReturn] function NOT_IMPLEMENTED(): void
+function NOT_IMPLEMENTED(): void
 {
     dd('IMPLEMENTED');
 }
@@ -11,7 +14,24 @@ use Rakit\Validation\RuleNotFoundException;
 /**
  * @throws RuleNotFoundException
  */
-function validator(string $ruleName): \Rakit\Validation\Rule
+function validator(string $ruleName): Rule
 {
-    return (new \Apex\src\Model\Validation\Validator())($ruleName);
+    return (new Validator())($ruleName);
+}
+
+function errors(string $name = 'errors'): ErrorBag
+{
+    return App::getInstance()->session->getFlash($name) ?? new ErrorBag;
+}
+
+function params(?string $name = null): array|null|string
+{
+    $params = App::getInstance()->session->getFlash('params');
+    if (empty($params)) {
+        return !empty($name) ? null: [];
+    }
+    if ($name) {
+        return $params[$name];
+    }
+    return $params;
 }

@@ -3,6 +3,7 @@
 namespace Apex\src\View;
 
 use Apex\src\App;
+use Apex\src\Response;
 
 // todo change how view class works
 class View
@@ -29,12 +30,11 @@ class View
         return $layout;
     }
 
-    public function view(string $viewName, array $params = []): bool|string
+    public function view(string $viewName, array $params = []): Response
     {
         $view = $this->getViewContent($viewName, $params);
         $layoutContent = $this->getCurrentLayout();
-
-        return str_replace('@content()', $view, $layoutContent);
+        return Response::makeResponse(str_replace('@content()', $view, $layoutContent));
     }
 
     private function getViewContent(string $view, array $params = []): bool|string
