@@ -9,8 +9,10 @@ class Response
 {
     private const VIEW = 'VIEW';
     private const JSON = 'JSON';
+    private const REDIRECT = 'REDIRECT';
     public readonly string $responseType;
     public string|array $content;
+    public array $headers = [];
 
     public static function makeResponse(array|bool|string $content): Response
     {
@@ -28,24 +30,35 @@ class Response
         http_response_code($code);
     }
 
-    public function redirect(string $url): static
+    public function back(): static
     {
-        header("location: $url");
-        return $this;
+        return $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
     }
 
-    public function back()
+    public function redirect(string $url): static
     {
-        header('location: ' . '/register');
+        $this->responseType = self::REDIRECT;
+        $this->headers['location'] = $url;
+        return $this;
     }
 
     public function processResponse(): void
     {
+        if ($this->responseType === self::REDIRECT) {
+            $this->makeHeaders();
+            return;
+        }
         $content = $this->content;
         if ($this->responseType === self::JSON) {
             header('Content-type: application/json');
             $content = json_encode($content);
         }
         echo $content;
+    }
+
+    protected function makeHeaders(): void
+    {
+        $headers = implode(';', array_map(fn($key, $value) => "$key:$value", array_keys($this->headers), array_values($this->headers)));
+        header($headers);
     }
 }

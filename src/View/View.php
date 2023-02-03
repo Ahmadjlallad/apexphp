@@ -8,7 +8,7 @@ use Apex\src\Response;
 // todo change how view class works
 class View
 {
-    private string $layout = 'main';
+    protected string $layout = 'main';
 
     public function viewContent(string $content): bool|string
     {

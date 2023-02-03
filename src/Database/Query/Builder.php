@@ -32,7 +32,7 @@ class Builder
         return $columns;
     }
 
-    public function prepareWhere(callable|array|string $column, string|null $conditions, mixed $value, string $boolean): void
+    public function prepareWhere(callable|array|string $column, ?string $conditions = null, mixed $value = null, string $boolean = 'AND'): void
     {
         if (!empty($conditions) && !empty($value)) {
             $this->where(func_get_args());
@@ -67,8 +67,10 @@ class Builder
 
     public function constructWhereFromArray(string|array $query): void
     {
-        foreach ($query as $items) {
-            if (is_array($items) && is_string(array_key_first($items))) {
+        foreach ($query as $key => $items) {
+            if (is_string($key)) {
+                $this->whereEqual($key, $items);
+            } elseif (is_array($items) && is_string(array_key_first($items))) {
                 foreach ($items as $item => $value) {
                     if (is_array($value)) {
                         $this->whereIn($item, $value);
@@ -76,20 +78,20 @@ class Builder
                         $this->whereEqual($item, $value);
                     }
                 }
-            } elseif (is_string($items[0]) && count($items) === 3) {
+            } elseif (is_string($items[0]) && count($items) >= 3) {
                 $this->where([...$items]);
             }
         }
     }
 
-    public function whereIn($column, $values): void
-    {
-        $this->where([$column, 'IN', $values]);
-    }
-
     public function whereEqual($column, $values): void
     {
         $this->where([$column, '=', $values]);
+    }
+
+    public function whereIn($column, $values): void
+    {
+        $this->where([$column, 'IN', $values]);
     }
 
     public function prepareSelect(array|string $columns): void
