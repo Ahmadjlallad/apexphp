@@ -3,6 +3,7 @@
 namespace Apex\src\Controller;
 
 use Apex\src\App;
+use Apex\src\Response;
 
 class Controller extends AbstractController
 {
@@ -17,8 +18,12 @@ class Controller extends AbstractController
         App::getInstance()->view->setLayout($layoutName);
     }
 
-    protected function view(string $viewName, array $params = []): bool|string
+    protected function view(string $viewName, array $params = []): Response
     {
         return App::getInstance()->view->view($viewName, $params);
+    }
+    protected function asJson(array $json): Response
+    {
+        return Response::makeResponse($json);
     }
 }

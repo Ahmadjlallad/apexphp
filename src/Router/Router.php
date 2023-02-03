@@ -5,6 +5,7 @@ namespace Apex\src\Router;
 
 use Apex\src\App;
 use Apex\src\Controller\Controller;
+use Apex\src\Response;
 use Closure;
 use ReflectionException;
 use ReflectionParameter;
@@ -26,7 +27,7 @@ class Router extends AbstractRouter
     /**
      * @throws ReflectionException
      */
-    public function resolve()
+    public function resolve():Response|string
     {
         $path = $this->request->getPath();
         $method = $this->request->getHttpMethod();

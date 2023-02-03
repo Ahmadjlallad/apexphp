@@ -5,10 +5,9 @@ namespace Apex\src;
 
 use Apex\src\Database\Database;
 use Apex\src\Router\Router;
+use Apex\src\Session\Session;
 use Apex\src\View\View;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
-use ReflectionException;
 
 class App
 {
@@ -19,14 +18,16 @@ class App
     public Router $router;
     public Request $request;
     public Response $response;
+    public Session $session;
     public View $view;
     public Database $db;
 
-    #[NoReturn] public function __construct($config = [])
+    public function __construct($config = [])
     {
         self::$ROOT_DIR = $config['ROOT_DIR'] ?? dirname(__DIR__);
         self::$VIEWS_DIR = $config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
         static::$instance = $this;
+        $this->session = new Session();
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router();
@@ -48,14 +49,9 @@ class App
     {
         try {
             $res = $this->router->resolve();
-            if (!$res) {
-                $this->response->setStatus(404);
-                dd('VIEW NOT FOUND you maybe forget to return form controller');
-            }
-            echo $res;
+            $res->processResponse();
         } catch (Exception $exception) {
             dd($exception);
         }
-
     }
 }
