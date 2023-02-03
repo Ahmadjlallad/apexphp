@@ -20,7 +20,6 @@ class SiteController extends Controller
 
     public function home(): Response
     {
-//        return $this->view('home');
-        return $this->asJson(['test' => 'hi']);
+        return $this->view('home');
     }
 }

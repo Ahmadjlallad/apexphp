@@ -8,6 +8,11 @@ class Session implements SessionInterface
 
     public function __construct(?string $cacheExpire = null, ?string $cacheLimiter = null)
     {
+        $dirName = realpath(dirname($_SERVER['DOCUMENT_ROOT'])) . '/runtime/session';
+        if (!file_exists($dirName)) {
+            mkdir($dirName, 0777, true);
+        }
+        ini_set('session.save_path', $dirName);
         $this->boot($cacheExpire, $cacheLimiter);
     }
 
@@ -41,9 +46,9 @@ class Session implements SessionInterface
         $_SESSION[self::FLASH_MESSAGES][$key] = ['value' => $message, 'toBeRemoved' => false];
     }
 
-    public function getFlash(string $key): mixed
+    public function getFlash(string $key, mixed $default = null): mixed
     {
-        return $_SESSION[self::FLASH_MESSAGES][$key]['value'] ?? null;
+        return $_SESSION[self::FLASH_MESSAGES][$key]['value'] ?? $default;
     }
 
     public function __destruct()
@@ -58,7 +63,7 @@ class Session implements SessionInterface
         }
     }
 
-    public function &__get(string $name)
+    public function __get(string $name)
     {
         if (method_exists($this, $methodName = ('get' . ucfirst($name)))) {
             return $this->{$methodName}();
@@ -67,15 +72,15 @@ class Session implements SessionInterface
 
     /**
      * @param string $key
+     * @param mixed $default
      * @return mixed
      */
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if ($this->has($key)) {
             return $_SESSION[$key];
         }
-
-        return null;
+        return $default;
     }
 
     public function has(string $key): bool

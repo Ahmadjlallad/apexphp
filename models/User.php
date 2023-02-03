@@ -2,7 +2,7 @@
 
 namespace Apex\models;
 
-use Apex\src\Model\Model;
+use Apex\src\Model\User as Authenticatable;
 use Carbon\Carbon;
 
 /**
@@ -14,14 +14,15 @@ use Carbon\Carbon;
  * @property Carbon|null created_at
  * @property Carbon|null updated_at
  */
-class User extends Model
+class User extends Authenticatable
 {
-
     public string|null $confirm_password = null;
     protected array $fillable = ['name', 'password', 'email', 'birth_date'];
+
     public function save(): bool
     {
         $this->password = password_hash($this->password, PASSWORD_BCRYPT);
         return parent::save();
     }
+
 }

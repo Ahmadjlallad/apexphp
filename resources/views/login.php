@@ -1,13 +1,15 @@
 <?php
 /**
  * @var ErrorBag $errors
+ * @var User $user
  */
 
+use Apex\models\User;
+use Apex\src\View\Forms\Form;
 use Rakit\Validation\ErrorBag;
-
-$errors = $errors ?: []
+$inputClass = "form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none";
 ?>
-<section class="h-screen">
+<section class="">
     <div class="container px-6 py-12 h-full">
         <div class="flex justify-center items-center flex-wrap h-full g-6 text-gray-800">
             <div class="md:w-8/12 lg:w-6/12 mb-12 md:mb-0">
@@ -18,25 +20,17 @@ $errors = $errors ?: []
                 />
             </div>
             <div class="md:w-8/12 lg:w-5/12 lg:ml-20">
+                <?php $form = Form::begin(['method' => 'post', 'action' => 's-login', 'options' => ['novalidate' => true, 'class' => 'test']]) ?>
                 <form method="post">
                     <!-- Email input -->
                     <div class="mb-6">
-                        <input
-                                type="text"
-                                class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                                placeholder="Email address"
-                                name="email"
-                        />
+                        <?= $form->field($user, 'email', ['class' => $inputClass, 'type' => 'email', 'id' => 'email']) ?>
+                        <span class="text-sm text-red-600" id="error"><?= $user->errorBag?->first('email') ?></span>
                     </div>
-
                     <!-- Password input -->
                     <div class="mb-6">
-                        <input
-                                type="password"
-                                class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                                placeholder="Password"
-                                name="password"
-                        />
+                        <?= $form->field($user, 'password', ['class' => $inputClass, 'type' => 'password', 'id' => 'password']) ?>
+                        <span class="text-sm text-red-600" id="error"><?= $user->errorBag?->first('password') ?></span>
                     </div>
 
                     <div class="flex justify-between items-center mb-6">

@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Apex\src;
 
 use Apex\src\Database\Database;
+use Apex\src\Model\Model;
+use Apex\src\Model\User;
 use Apex\src\Router\Router;
 use Apex\src\Session\Session;
 use Apex\src\View\View;
@@ -21,19 +23,34 @@ class App
     public Session $session;
     public View $view;
     public Database $db;
+    public ?Model $user = null;
+    private string $userClass;
 
     public function __construct($config = [])
     {
-        self::$ROOT_DIR = $config['ROOT_DIR'] ?? dirname(__DIR__);
-        self::$VIEWS_DIR = $config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
+        static::$config = $config;
+        self::$ROOT_DIR = static::$config['ROOT_DIR'] ?? dirname(__DIR__);
+        self::$VIEWS_DIR = static::$config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
         static::$instance = $this;
         $this->session = new Session();
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router();
         $this->view = new View();
-        $this->db = new Database($config['db'] ?? static::$config['db']);
-        static::$config = $config;
+        $this->db = new Database(static::$config['db']);
+        $this->userClass = $config['userClass'];
+        $this->loginFromSession();
+    }
+
+    private function loginFromSession(): void
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->userClass::select();
+        if ($userKey = $this->session->get('user_from_session')) {
+            $this->user = $user->firstWhere([$user->primaryKey => $userKey]);
+        }
     }
 
     public static function getInstance(): App
@@ -45,6 +62,14 @@ class App
         return static::$instance;
     }
 
+    public function login(?Model $user): void
+    {
+        $this->user = $user;
+        $primaryKey = $user->primaryKey;
+        $primaryValue = $user->{$primaryKey};
+        $this->session->set('user_from_session', $primaryValue);
+    }
+
     public function run(): void
     {
         try {
@@ -53,5 +78,11 @@ class App
         } catch (Exception $exception) {
             dd($exception);
         }
+    }
+
+    public function logout(): void
+    {
+        $this->session->remove('user_from_session');
+        $this->user = null;
     }
 }

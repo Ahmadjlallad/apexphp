@@ -6,35 +6,37 @@ use Apex\models\User;
 use Apex\src\App;
 use Apex\src\Controller\Controller;
 use Apex\src\Request;
+use Apex\src\Response;
 use Rakit\Validation\RuleNotFoundException;
 
 class AuthController extends Controller
 {
-    public function showLogin():  \Apex\src\Response
+    public function showLogin(): Response
     {
-//        $user = User::select()
-//            ->where('id', '=', 1)
-//            ->where(['id' => [1, 2, 3]]);
-        $user = User::select()->firstWhere('id', '=', 1);
-//        $user->save();
-//            ->where([
-//                ['id', '=', 1],
-//            ]);
-//        $user->name = 'ahmad joj';
-//        $user->save();
-
-        return $this->view('login');
+        $user = new User;
+        if (!empty($attr = App::getInstance()->session->getFlash('user'))) {
+            $user->fill($attr['attr']);
+            $user->errorBag->margeErrorBadges($attr['error']);
+        }
+        return $this->view('login', ['user' => $user]);
     }
 
-    public function storeLogin(): bool|string
+    public function storeLogin(Request $request): Response
     {
-        return $this->view('login');
+        $validation = $request->validate($request->input(), ['email' => ['required', 'email'], 'password' => 'required']);
+        $user = new User($request->input());
+        if (!$validation->fails() && $user->login()) {
+            App::getInstance()->session->remove('user');
+            return $this->response->redirect('/');
+        }
+        App::getInstance()->session->setFlash('user', ['attr' => $user->getAttributes(), 'error' => $user->errorBag]);
+        return $this->response->back();
     }
 
     /**
      * @throws RuleNotFoundException
      */
-    public function register(Request $request): \Apex\src\Response
+    public function register(Request $request): Response
     {
         $user = User::create();
         if ($this->request->isPost()) {
@@ -46,8 +48,14 @@ class AuthController extends Controller
                 App::getInstance()->session->setFlash('success', 'test');
                 return $this->response->redirect('/');
             }
-            $user->errorMessage->margeErrorBadges($validate->errors());
+            $user->errorBag->margeErrorBadges($validate->errors());
         }
         return $this->view('register', ['user' => $user]);
+    }
+
+    public function logout(Response $response): Response
+    {
+        auth()->logout();
+        return $response->redirect('/');
     }
 }

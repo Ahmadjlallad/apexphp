@@ -8,7 +8,7 @@ interface SessionInterface
      * @param string $key
      * @return mixed
      */
-    public function get(string $key): mixed;
+    public function get(string $key, mixed $default): mixed;
 
     /**
      * @param string $key

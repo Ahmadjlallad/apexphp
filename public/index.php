@@ -6,6 +6,7 @@ use Apex\src\App;
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 $config = [
+    'userClass' => \Apex\models\User::class,
     'db' => [
         'type' => $_ENV['DB_TYPE'],
         'host' => $_ENV['DB_HOST'],

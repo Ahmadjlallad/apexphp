@@ -12,36 +12,24 @@ use ReflectionClass;
 
 abstract class Model
 {
-    public ErrorBag $errorMessage;
+    public ErrorBag $errorBag;
     public string $primaryKey = 'id';
+    public bool $exists = false;
     protected string $table = '';
     protected array $attributes = [];
-    public bool $exists = false;
     protected array $fillable = [];
     protected array $guarded = [];
     protected Builder $_builder;
     protected PDO $connection;
     protected array $original = [];
+    protected array $hidden = [];
     private readonly Processor $processor;
 
-    public function __construct()
+    public function __construct(array $attributes = [])
     {
+        $this->fill($attributes);
         $this->boot();
         $this->processor = new Processor($this->connection);
-    }
-
-    private function boot(): void
-    {
-        $this->getTable();
-        $this->setBuilder(new Builder($this));
-        $this->errorMessage = new ErrorBag();
-    }
-
-    static public function create(array $attributes = []): static
-    {
-        $model = new static;
-        $model->fill($attributes);
-        return $model;
     }
 
     public function fill(array $attributes, $original = false): void
@@ -113,6 +101,30 @@ abstract class Model
         $this->attributes[$key] = $value;
     }
 
+    private function boot(): void
+    {
+        $this->getTable();
+        $this->setBuilder(new Builder($this));
+        $this->errorBag = new ErrorBag();
+    }
+
+    /**
+     * @return string
+     */
+    public function getTable(): string
+    {
+        if (empty($this->table)) {
+            $reflect = new ReflectionClass(static::class);
+            $this->table = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $reflect->getShortName()));
+        }
+        return $this->table;
+    }
+
+    static public function create(array $attributes = []): static
+    {
+        return new static($attributes);
+    }
+
     /**
      * Get all the models from the database.
      *
@@ -150,17 +162,61 @@ abstract class Model
         }
     }
 
-    static private function prepareModel(array $modelValues): static
+    /**
+     * @return Builder
+     */
+    protected function getBuilder(): Builder
+    {
+        return $this->_builder;
+    }
+
+    /**
+     * @param Builder $builder
+     */
+    protected function setBuilder(Builder $builder): void
+    {
+        $this->_builder = $builder;
+    }
+
+    /**
+     * @return PDO
+     */
+    public function getConnection(): PDO
+    {
+        return App::getInstance()->db->pdo;
+    }
+
+    public function setConnection(PDO $pdo): void
+    {
+        $this->connection = $pdo;
+    }
+
+    private function prepareModel(array $modelValues): static
     {
         $model = new static();
         $model->exists = true;
         $model->fill($modelValues, true);
+        $model->hideAttributes($this->hidden);
         return $model;
     }
 
-    public function query(): Builder
+    private function hideAttributes(array $modifiedHidden = null): void
     {
-        return new Builder($this);
+        foreach ($modifiedHidden ?? $this->hidden as $hidden) {
+            unset($this->attributes[$hidden]);
+        }
+        $this->syncOriginal();
+    }
+
+    public function syncOriginal(): static
+    {
+        $this->original = $this->getAttributes();
+        return $this;
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->attributes;
     }
 
     static function select(string|array $columns = ['*']): static
@@ -171,19 +227,9 @@ abstract class Model
         return $model;
     }
 
-
-    /**
-     * {string: condition, string: property, string: value}
-     * @param array|string|callable $column
-     * @param string|null $conditions
-     * @param mixed $value
-     * @param string $boolean
-     * @return Model
-     */
-    public function where(array|string|callable $column, string|null $conditions = null, mixed $value = null, string $boolean = 'and'): static
+    public function query(): Builder
     {
-        $this->getBuilder()->prepareWhere($column, $conditions, $value, $boolean);
-        return $this;
+        return new Builder($this);
     }
 
     public function save(): bool
@@ -201,24 +247,9 @@ abstract class Model
             }
             return $res;
         } catch (PDOException $exception) {
-            $this->errorMessage->addError('*', $exception->getMessage());
+            $this->errorBag->addError('*', $exception->getMessage());
             return false;
         }
-    }
-    /**
-     * @return Builder
-     */
-    protected function getBuilder(): Builder
-    {
-        return $this->_builder;
-    }
-
-    /**
-     * @param Builder $builder
-     */
-    protected function setBuilder(Builder $builder): void
-    {
-        $this->_builder = $builder;
     }
 
     private function prepareInsertBindings(): array
@@ -246,34 +277,23 @@ abstract class Model
         }
     }
 
-    /**
-     * @return PDO
-     */
-    public function getConnection(): PDO
-    {
-        return App::getInstance()->db->pdo;
-    }
-
-    public function setConnection(PDO $pdo): void
-    {
-        $this->connection = $pdo;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTable(): string
-    {
-        if (empty($this->table)) {
-            $reflect = new ReflectionClass(static::class);
-            $this->table = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $reflect->getShortName()));
-        }
-        return $this->table;
-    }
-
     public function orWhere(string $column, string $condition, mixed $value): static
     {
         $this->where($column, $condition, $value, 'or');
+        return $this;
+    }
+
+    /**
+     * {string: condition, string: property, string: value}
+     * @param array|string|callable $column
+     * @param string|null $conditions
+     * @param mixed $value
+     * @param string $boolean
+     * @return Model
+     */
+    public function where(array|string|callable $column, ?string $conditions = null, mixed $value = null, string $boolean = 'and'): static
+    {
+        $this->getBuilder()->prepareWhere($column, $conditions, $value, $boolean);
         return $this;
     }
 
@@ -283,12 +303,24 @@ abstract class Model
         return $this;
     }
 
-    public function firstWhere(string $column, string $condition, mixed $value): static|null
+    public function firstWhere(array|string $column, string $condition = '=', mixed $value = null): static|null
     {
         $this->where(...func_get_args());
         if (empty($this->get())) {
             return null;
         }
         return $this->get()[0];
+    }
+
+    public function makeVisible(array $becomeVisible): static
+    {
+        $this->hidden = array_diff($this->hidden, $becomeVisible);
+        return $this;
+    }
+
+    public function makeHidden(array $array): static
+    {
+        $this->hidden = array_merge($this->hidden, $array);
+        return $this;
     }
 }

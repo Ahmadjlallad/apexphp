@@ -9,6 +9,12 @@ Router::get('/contact', [SiteController::class, 'showContact']);
 Router::post('/contact', [SiteController::class, 'storeContact']);
 
 Router::get('/login', [AuthController::class, 'showLogin']);
-Router::post('/login', [AuthController::class, 'storeLogin']);
+Router::post('/s-login', [AuthController::class, 'storeLogin']);
 Router::get('/register', [AuthController::class, 'register']);
 Router::post('/register', [AuthController::class, 'register']);
+Router::post('/logout', [AuthController::class, 'logout']);
+
+
+
+
+Router::get('/test', [\Apex\controllers\TestController::class, 'queryTest']);

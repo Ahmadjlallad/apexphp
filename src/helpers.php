@@ -1,6 +1,8 @@
 <?php
 
 use Apex\src\App;
+use Apex\src\Model\User;
+use Apex\src\Model\Model;
 use Apex\src\Model\Validation\Validator;
 use Rakit\Validation\ErrorBag;
 use Rakit\Validation\Rule;
@@ -34,4 +36,11 @@ function params(?string $name = null): array|null|string
         return $params[$name];
     }
     return $params;
+}
+function auth(): ?User
+{
+    return App::getInstance()->user;
+}
+function vLog(mixed ...$values) {
+    return \Symfony\Component\VarDumper\VarDumper::dump(func_get_args());
 }
