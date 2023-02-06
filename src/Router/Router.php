@@ -3,60 +3,51 @@ declare(strict_types=1);
 
 namespace Apex\src\Router;
 
-use Apex\src\App;
-use Apex\src\Controller\Controller;
-use Apex\src\Response;
+use Apex\src\Middlewares\MiddlewareInterface;
 use Closure;
-use ReflectionException;
-use ReflectionParameter;
 
 class Router extends AbstractRouter
 {
     static protected array $routes = [];
+    /**
+     * @var MiddlewareInterface[]
+     */
+    public array $middlewares = [];
 
-    public static function post(string $path, Closure|callable|array|string|null $action): void
+    /**
+     * @param string $method
+     * @param string $path
+     * @param Closure|array|string|null $action
+     */
+    public function __construct(public readonly string $method, public string $path, public Closure|array|string|null $action)
     {
-        static::$routes['post'][$path] = $action;
     }
 
-    public static function get(string $path, string|Closure|null|callable|array $action): void
+    public static function post(string $path, Closure|callable|array|string|null $action): static
     {
-        static::$routes['get'][$path] = $action;
+        $router = new static(Methods::POST->value, $path, $action);
+        RoutesHandler::$routes[$router->method][$path] = $router;
+        return $router;
+    }
+
+    public static function get(string $path, string|Closure|null|callable|array $action): static
+    {
+        $router = new static(Methods::GET->value, $path, $action);
+        RoutesHandler::$routes[$router->method][$path] = $router;
+        return $router;
     }
 
     /**
-     * @throws ReflectionException
+     * @param MiddlewareInterface[]|MiddlewareInterface $middlewares
+     * @return Router
      */
-    public function resolve():Response|string
+    public function middleware(MiddlewareInterface|array $middlewares): static
     {
-        $path = $this->request->getPath();
-        $method = $this->request->getHttpMethod();
-        $action = static::$routes[$method][$path] ?? null;
-        if (!$action) {
-            return App::getInstance()->view->view('404');
+        if (is_array($middlewares)) {
+            $this->middlewares = array_merge($this->middlewares, $middlewares);
+        } else {
+            $this->middlewares[] = $middlewares;
         }
-        if (is_array($action)) {
-            $controller = new $action[0];
-            try {
-                /** @var Controller $controller */
-                $test = new ReflectionParameter($action, 0);
-                $class = null;
-                if (!$test->getType()->isBuiltin()) {
-                    $class = new ($test->getType()->getName());
-                }
-                return $controller->callAction($action[1], [$class]);
-            } catch (ReflectionException $exception) {
-                if ($exception->getCode() === 0) {
-                    return $controller->callAction($action[1]);
-                }
-                dd($exception);
-            }
-        }
-        if (is_string($action)) {
-            return App::getInstance()->view->viewContent($action);
-        }
-        return call_user_func($action);
+        return $this;
     }
-
-
 }

@@ -6,6 +6,11 @@
     <link href="/dist/css/app.css" rel="stylesheet">
     <script src="/dist/js/app.js" defer></script>
     <script src="//unpkg.com/alpinejs" defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../../css/pico.min.css">
+    <title>Hello, world!</title>
+
     <title></title>
 </head>
 <body>
@@ -102,7 +107,7 @@
                                  role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button"
                                  tabindex="-1">
                                 <!-- Active: "bg-gray-100", Not Active: "" -->
-                                <a href="/login" class="block px-4 py-2 text-sm text-gray-700" role="menuitem"
+                                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700" role="menuitem"
                                    tabindex="-1"
                                    id="user-menu-item-0">Your Profile</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1"

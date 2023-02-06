@@ -25,21 +25,22 @@ class Response
         return $response;
     }
 
-    public function setStatus(int $code): void
-    {
-        http_response_code($code);
-    }
-
     public function back(): static
     {
         return $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
     }
 
-    public function redirect(string $url): static
+    public function redirect(string $url, int $code = 307): static
     {
+        $this->setStatus($code);
         $this->responseType = self::REDIRECT;
         $this->headers['location'] = $url;
         return $this;
+    }
+
+    public function setStatus(int $code): void
+    {
+        http_response_code($code);
     }
 
     public function processResponse(): void

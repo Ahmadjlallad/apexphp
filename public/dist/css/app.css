@@ -1,6 +1,8 @@
+/*@import "/vendor/picocss/pico/css/pico.min.css";*/
+
+/*! tailwindcss v3.2.4 | MIT License | https://tailwindcss.com*/
+
 /*
-! tailwindcss v3.2.4 | MIT License | https://tailwindcss.com
-*//*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
 2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
 */
@@ -338,6 +340,7 @@ button,
 /*
 Make sure disabled buttons don't get the pointer cursor.
 */
+
 :disabled {
   cursor: default;
 }
@@ -371,6 +374,7 @@ video {
 }
 
 /* Make elements with the HTML hidden attribute stay hidden by default */
+
 [hidden] {
   display: none;
 }
@@ -783,9 +787,6 @@ select {
 .mb-3 {
   margin-bottom: 0.75rem;
 }
-.mt-0 {
-  margin-top: 0px;
-}
 .mb-8 {
   margin-bottom: 2rem;
 }
@@ -961,9 +962,6 @@ select {
 .border-0 {
   border-width: 0px;
 }
-.border-b-2 {
-  border-bottom-width: 2px;
-}
 .border-solid {
   border-style: solid;
 }
@@ -977,10 +975,6 @@ select {
 }
 .border-transparent {
   border-color: transparent;
-}
-.border-gray-200 {
-  --tw-border-opacity: 1;
-  border-color: rgb(229 231 235 / var(--tw-border-opacity));
 }
 .bg-black {
   --tw-bg-opacity: 1;
@@ -1082,10 +1076,6 @@ select {
   padding-left: 1.75rem;
   padding-right: 1.75rem;
 }
-.px-0 {
-  padding-left: 0px;
-  padding-right: 0px;
-}
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1093,12 +1083,6 @@ select {
 .py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-}
-.pt-3 {
-  padding-top: 0.75rem;
-}
-.pb-2 {
-  padding-bottom: 0.5rem;
 }
 .pr-2 {
   padding-right: 0.5rem;
@@ -1193,13 +1177,13 @@ select {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
-.text-blue-600 {
-  --tw-text-opacity: 1;
-  color: rgb(37 99 235 / var(--tw-text-opacity));
-}
 .text-red-600 {
   --tw-text-opacity: 1;
   color: rgb(220 38 38 / var(--tw-text-opacity));
+}
+.text-blue-600 {
+  --tw-text-opacity: 1;
+  color: rgb(37 99 235 / var(--tw-text-opacity));
 }
 .text-gray-400 {
   --tw-text-opacity: 1;
@@ -1459,11 +1443,6 @@ select {
 .focus\:border-blue-600:focus {
   --tw-border-opacity: 1;
   border-color: rgb(37 99 235 / var(--tw-border-opacity));
-}
-
-.focus\:border-black:focus {
-  --tw-border-opacity: 1;
-  border-color: rgb(0 0 0 / var(--tw-border-opacity));
 }
 
 .focus\:bg-white:focus {

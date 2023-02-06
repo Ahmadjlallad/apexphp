@@ -7,6 +7,7 @@ use Apex\src\Database\Database;
 use Apex\src\Model\Model;
 use Apex\src\Model\User;
 use Apex\src\Router\Router;
+use Apex\src\Router\RoutesHandler;
 use Apex\src\Session\Session;
 use Apex\src\View\View;
 use Exception;
@@ -17,7 +18,7 @@ class App
     public static string $VIEWS_DIR;
     static public array $config = [];
     private static App $instance;
-    public Router $router;
+    public RoutesHandler $routesFactory;
     public Request $request;
     public Response $response;
     public Session $session;
@@ -35,7 +36,7 @@ class App
         $this->session = new Session();
         $this->request = new Request();
         $this->response = new Response();
-        $this->router = new Router();
+        $this->routesFactory = new RoutesHandler($this->request);
         $this->view = new View();
         $this->db = new Database(static::$config['db']);
         $this->userClass = $config['userClass'];
@@ -73,7 +74,7 @@ class App
     public function run(): void
     {
         try {
-            $res = $this->router->resolve();
+            $res = $this->routesFactory->resolve();
             $res->processResponse();
         } catch (Exception $exception) {
             dd($exception);

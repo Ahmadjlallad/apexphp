@@ -2,11 +2,11 @@
 
 use Apex\src\App;
 use Apex\src\Model\User;
-use Apex\src\Model\Model;
 use Apex\src\Model\Validation\Validator;
 use Rakit\Validation\ErrorBag;
 use Rakit\Validation\Rule;
 use Rakit\Validation\RuleNotFoundException;
+use Symfony\Component\VarDumper\VarDumper;
 
 function NOT_IMPLEMENTED(): void
 {
@@ -30,17 +30,24 @@ function params(?string $name = null): array|null|string
 {
     $params = App::getInstance()->session->getFlash('params');
     if (empty($params)) {
-        return !empty($name) ? null: [];
+        return !empty($name) ? null : [];
     }
     if ($name) {
         return $params[$name];
     }
     return $params;
 }
+
 function auth(): ?User
 {
     return App::getInstance()->user;
 }
-function vLog(mixed ...$values) {
-    return \Symfony\Component\VarDumper\VarDumper::dump(func_get_args());
+
+function vLog(mixed ...$values): array
+{
+    $vars = [];
+    foreach ($values as $value) {
+        $vars[] = VarDumper::dump($value);
+    }
+    return $vars;
 }

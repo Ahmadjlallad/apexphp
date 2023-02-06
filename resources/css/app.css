@@ -1,3 +1,5 @@
+/*@import "/vendor/picocss/pico/css/pico.min.css";*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
