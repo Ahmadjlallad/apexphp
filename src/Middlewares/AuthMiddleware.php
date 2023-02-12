@@ -9,6 +9,13 @@ use Closure;
 
 class AuthMiddleware implements MiddlewareInterface
 {
+
+
+    public function __construct(public bool $haveToBeAuthenticated = true)
+    {
+
+    }
+
     /**
      * @param Request $request
      * @param Closure $next
@@ -16,9 +23,12 @@ class AuthMiddleware implements MiddlewareInterface
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        if (!auth()) {
-            return App::getInstance()->response->redirect('/', 401);
+        if ((auth() && $this->haveToBeAuthenticated) || (!auth() && !$this->haveToBeAuthenticated)) {
+            return $next($request);
         }
-        return $next($request);
+        if (!$this->haveToBeAuthenticated) {
+            return App::getInstance()->response->back();
+        }
+        return App::getInstance()->response->redirect('/', 401);
     }
 }

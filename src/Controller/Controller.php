@@ -25,7 +25,7 @@ class Controller extends AbstractController
 
     public function setLayout(string $layoutName): void
     {
-        App::getInstance()->view->setLayout($layoutName);
+        App::getInstance()->views->setLayout($layoutName);
     }
 
     public function __get(string $name)
@@ -43,7 +43,7 @@ class Controller extends AbstractController
 
     protected function view(string $viewName, array $params = []): Response
     {
-        return App::getInstance()->view->view($viewName, $params);
+        return App::getInstance()->views->view($viewName, $params);
     }
 
     protected function asJson(array $json): Response

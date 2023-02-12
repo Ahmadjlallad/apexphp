@@ -1,3 +1,11 @@
+<?php
+/**
+ * @var $this View
+ */
+
+use Apex\src\Views\View;
+
+?>
 <!doctype html>
 <html lang="">
 <head>
@@ -9,13 +17,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../../css/pico.min.css">
-    <title>Hello, world!</title>
+    <title><?= $this->title ?></title>
 
     <title></title>
 </head>
 <body>
 <nav class="bg-gray-800" x-data="{ open: false }">
-    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <div class="container mx-auto
+">
         <div class="relative flex h-16 items-center justify-between">
             <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <!-- Mobile menu button-->
@@ -55,17 +64,23 @@
                     <img class="hidden h-8 w-auto lg:block"
                          src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
                 </div>
-                <div class="hidden sm:ml-6 sm:block">
-                    <div class="flex space-x-4">
+                <div class="hidden sm:ml-6 sm:block w-full">
+                    <div class="flex gap-x-4 items-center">
                         <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
                         <a href="/" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium"
                            aria-current="page">Home</a>
 
                         <a href="/contact"
                            class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                        <?php if (empty(auth())) { ?>
+                                    <a href="/login"
+                                       class="ml-auto text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                                    <a href="/register"
+                                       class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">register</a>
+                        <?php } ?>
                     </div>
                 </div>
-                <?php if (auth() !== null): ?>
+                <?php if (!empty(auth())) { ?>
                     <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 lg:ml-auto">
                         <button type="button"
                                 class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -83,7 +98,7 @@
                             <div>
                                 <button type="button"
                                         @click="open = !open"
-                                        class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                                        class="w-max flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                                         id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                                     <span class="sr-only">Open user menu</span>
                                     <img class="h-8 w-8 rounded-full"
@@ -114,29 +129,30 @@
                                    id="user-menu-item-1">Settings</a>
                                 <form action="/logout" method="post">
                                     <button class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1"
-                                       id="user-menu-item-2">Logout</button>
+                                            id="user-menu-item-2">Logout
+                                    </button>
                                 </form>
 
                             </div>
                         </div>
                     </div>
-                <?php endif; ?>
+                <?php } ?>
             </div>
         </div>
     </div>
 
     <!-- Mobile menu, show/hide based on menu state. -->
-    <div class="sm:hidden" id="mobile-menu">
-        <div class="space-y-1 px-2 pt-2 pb-3">
+    <div class="sm:hidden container" id="mobile-menu">
+        <div class="space-y-1 pt-2 pb-3">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <a href="#" class="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium"
                aria-current="page">Home</a>
             <a href="/contact"
-               class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Contact</a>
+               class="text-gray-300 hover:bg-gray-700 hover:text-white block py-2 rounded-md text-base font-medium">Contact</a>
         </div>
     </div>
 </nav>
-<main class="">
+<main class="container mx-auto">
     @content()
 </main>
 </body>

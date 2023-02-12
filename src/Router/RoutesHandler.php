@@ -35,7 +35,7 @@ class RoutesHandler
          */
         $route = static::$routes[$method][$path] ?? null;
         if (!$route) {
-            return App::getInstance()->view->view('404');
+            return App::getInstance()->views->view('404');
         }
         $routeAction = $route->action;
         if (is_array($routeAction)) {
@@ -76,7 +76,7 @@ class RoutesHandler
             }
         }
         if (is_string($routeAction)) {
-            return App::getInstance()->view->viewContent($routeAction);
+            return App::getInstance()->views->viewContent($routeAction);
         }
         return call_user_func($routeAction);
     }

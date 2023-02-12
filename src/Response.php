@@ -30,7 +30,9 @@ class Response
         return $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
     }
 
-    public function redirect(string $url, int $code = 307): static
+    public function redirect(string $url, int $code = 302
+
+    ): static
     {
         $this->setStatus($code);
         $this->responseType = self::REDIRECT;
