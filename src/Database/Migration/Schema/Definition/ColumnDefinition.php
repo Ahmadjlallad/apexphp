@@ -66,11 +66,19 @@ class ColumnDefinition
     /**
      * @return ColumnOptionsDefinition
      */
-    public function integer(): ColumnOptionsDefinition
+    public function int(): ColumnOptionsDefinition
     {
         $this->statement .= static::INTEGER . ' ';
         return new ColumnOptionsDefinition($this->statement);
+    }
 
+    /**
+     * @return ColumnOptionsDefinition
+     */
+    public function bigint(): ColumnOptionsDefinition
+    {
+        $this->statement .= static::BIGINT . ' ';
+        return new ColumnOptionsDefinition($this->statement);
     }
 
     /**

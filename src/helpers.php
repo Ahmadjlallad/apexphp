@@ -51,3 +51,11 @@ function vLog(mixed ...$values): array
     }
     return $vars;
 }
+/**
+ * @param string $message
+ * @return void
+ */
+function infoLog(string $message): void
+{
+    VarDumper::dump(sprintf("INFO AT [%s] - %s", date('y-m-d H:i:s'), $message));
+}

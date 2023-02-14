@@ -49,13 +49,11 @@ class Model extends Command
         $file = str_replace('@docBlock', $docBlock, $file);
         $fileName = dirname(__DIR__, 3) . '/models/' . $modelName . '.php';
         if (file_exists($fileName)) {
-            $output->writeln('[INFO] Model already exists');
+            $output->writeln('<info>[INFO] Model already exists</info>');
             return Command::SUCCESS;
         }
         file_put_contents($fileName, $file);
-        $output->writeln('[INFO] Model created successfully');
+        $output->writeln('<info>[INFO] Model created successfully</info>');
         return Command::SUCCESS;
     }
-
-
 }

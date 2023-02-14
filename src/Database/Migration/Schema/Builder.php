@@ -7,4 +7,6 @@ interface Builder
     public function create(string $table, array $columns, bool $checkIfNotExist = false): string;
 
     public function addForeignKey(array $config): string;
+
+    public function dropTable(string $tableName, bool $checkIfNotExist = false): string;
 }

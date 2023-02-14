@@ -7,13 +7,18 @@ use Apex\src\Database\Migration\Schema\Builder;
 use Apex\src\Database\Migration\Schema\Definition\Column;
 use PDO;
 use PDOException;
-use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Execute Migrations
+ * @todo implement down method
  */
 class ExecuteMigrations
 {
+    /**
+     * @var array
+     */
+    public array $newMigrations = [];
+
     /**
      * @param PDO $pdo
      * @param Builder $builder
@@ -21,11 +26,6 @@ class ExecuteMigrations
     public function __construct(public PDO $pdo, private readonly Builder $builder)
     {
     }
-
-    /**
-     * @var array
-     */
-    public array $newMigrations = [];
 
     /**
      * @return void
@@ -40,7 +40,7 @@ class ExecuteMigrations
         $toApplyMigrations = array_diff($files, $appliedMigrations);
         foreach ($toApplyMigrations as $migration) {
             $this->newMigrations[] = $migration;
-            $this->log("Applying Migration $migration");
+            infoLog("Applying Migration $migration");
             $currentMigration = $_ENV['MIGRATIONS_NAME_SPACE'] . '\\' . $migration;
             try {
                 /** @var Migration $currentMigration */
@@ -54,12 +54,12 @@ class ExecuteMigrations
                     dd($PDOException->errorInfo);
                 }
             }
-            $this->log("Applied Migration $migration");
+            infoLog("Applied Migration $migration");
         }
         if (!empty($this->newMigrations)) {
             $this->saveMigrations($this->newMigrations);
         } else {
-            $this->log("All Migrations has been Applied");
+            infoLog("All Migrations has been Applied");
         }
     }
 
@@ -90,14 +90,6 @@ class ExecuteMigrations
         return $statement->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    /**
-     * @param string $message
-     * @return void
-     */
-    private function log(string $message): void
-    {
-        VarDumper::dump(sprintf("INFO AT [%s] - %s", date('y-m-d H:i:s'), $message));
-    }
 
     /**
      * @param array $migrations

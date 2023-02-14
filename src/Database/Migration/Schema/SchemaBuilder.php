@@ -32,4 +32,9 @@ class SchemaBuilder implements Builder
     {
         return (new ForeignIdColumnDefinition())->addForeignKey($config);
     }
+
+    public function dropTable(string $tableName, bool $checkIfNotExist = false): string
+    {
+        return sprintf("DROP %s $tableName", $checkIfNotExist ? 'TABLE IF NOT EXISTS' : 'TABLE');
+    }
 }

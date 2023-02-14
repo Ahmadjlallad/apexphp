@@ -6,7 +6,6 @@ namespace Apex\src;
 use Apex\src\Database\Database;
 use Apex\src\Model\Model;
 use Apex\src\Model\User;
-use Apex\src\Router\Router;
 use Apex\src\Router\RoutesHandler;
 use Apex\src\Session\Session;
 use Apex\src\Views\View;
@@ -25,7 +24,7 @@ class App
     public View $views;
     public Database $db;
     public ?Model $user = null;
-    private string $userClass;
+    private ?string $userClass;
 
     public function __construct($config = [])
     {
@@ -33,14 +32,16 @@ class App
         self::$ROOT_DIR = static::$config['ROOT_DIR'] ?? dirname(__DIR__);
         self::$VIEWS_DIR = static::$config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
         static::$instance = $this;
-        $this->session = new Session();
+        $this->session = new Session(self::$config['haveSession'] ?? true);
         $this->request = new Request();
         $this->response = new Response();
         $this->routesFactory = new RoutesHandler($this->request);
         $this->views = new View();
         $this->db = new Database(static::$config['db']);
-        $this->userClass = $config['userClass'];
-        $this->loginFromSession();
+        $this->userClass = $config['userClass'] ?? null;
+        if ($this->session->isStarted()) {
+            $this->loginFromSession();
+        }
     }
 
     private function loginFromSession(): void

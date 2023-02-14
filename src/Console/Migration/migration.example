@@ -1,0 +1,17 @@
+<?php
+
+namespace Apex\migrations;
+use Apex\src\Database\Migration\Migration;
+
+class @className extends Migration
+{
+    public function up(): void
+    {
+        //
+    }
+
+    public function down(): void
+    {
+        //
+    }
+}

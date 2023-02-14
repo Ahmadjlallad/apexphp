@@ -6,14 +6,18 @@ class Session implements SessionInterface
 {
     protected const FLASH_MESSAGES = 'FLASH_MESSAGES';
 
-    public function __construct(?string $cacheExpire = null, ?string $cacheLimiter = null)
+    public function __construct(public bool $haveSession = true, ?string $cacheExpire = null, ?string $cacheLimiter = null)
     {
-        $dirName = realpath(dirname($_SERVER['DOCUMENT_ROOT'])) . '/runtime/session';
-        if (!file_exists($dirName)) {
-            mkdir($dirName, 0777, true);
+        if ($haveSession) {
+            $dirName = realpath(dirname($_SERVER['PWD'])) . '/runtime/session';
+            if (!file_exists($dirName)) {
+                mkdir($dirName, 0777, true);
+            }
+            ini_set('session.save_path', $dirName);
+            $this->boot($cacheExpire, $cacheLimiter);
+        } else {
+            session_unset();
         }
-        ini_set('session.save_path', $dirName);
-        $this->boot($cacheExpire, $cacheLimiter);
     }
 
     private function boot(?string $cacheExpire = null, ?string $cacheLimiter = null): void
@@ -53,11 +57,13 @@ class Session implements SessionInterface
 
     public function __destruct()
     {
-        if (!empty($_SESSION[self::FLASH_MESSAGES])) {
-            $flashMessages = &$_SESSION[self::FLASH_MESSAGES];
-            foreach ($flashMessages as $key => &$flashMessage) {
-                if ($flashMessage['toBeRemoved']) {
-                    unset($flashMessages[$key]);
+        if ($this->haveSession) {
+            if (!empty($_SESSION[self::FLASH_MESSAGES])) {
+                $flashMessages = &$_SESSION[self::FLASH_MESSAGES];
+                foreach ($flashMessages as $key => &$flashMessage) {
+                    if ($flashMessage['toBeRemoved']) {
+                        unset($flashMessages[$key]);
+                    }
                 }
             }
         }
@@ -114,5 +120,10 @@ class Session implements SessionInterface
     public function flashMessages(): array
     {
         return $_SESSION[self::FLASH_MESSAGES] ?? [];
+    }
+
+    public function id(): false|string
+    {
+        return session_id();
     }
 }
