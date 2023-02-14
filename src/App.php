@@ -9,7 +9,7 @@ use Apex\src\Model\User;
 use Apex\src\Router\Router;
 use Apex\src\Router\RoutesHandler;
 use Apex\src\Session\Session;
-use Apex\src\View\View;
+use Apex\src\Views\View;
 use Exception;
 
 class App
@@ -22,7 +22,7 @@ class App
     public Request $request;
     public Response $response;
     public Session $session;
-    public View $view;
+    public View $views;
     public Database $db;
     public ?Model $user = null;
     private string $userClass;
@@ -37,7 +37,7 @@ class App
         $this->request = new Request();
         $this->response = new Response();
         $this->routesFactory = new RoutesHandler($this->request);
-        $this->view = new View();
+        $this->views = new View();
         $this->db = new Database(static::$config['db']);
         $this->userClass = $config['userClass'];
         $this->loginFromSession();

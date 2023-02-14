@@ -1,6 +1,6 @@
 <?php
 
-namespace Apex\src\View\Forms;
+namespace Apex\src\Views\Forms;
 
 use Apex\src\Model\Model;
 
