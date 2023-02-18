@@ -2,6 +2,8 @@
 
 namespace Apex\src\Session;
 
+use Apex\src\App;
+
 class Session implements SessionInterface
 {
     protected const FLASH_MESSAGES = 'FLASH_MESSAGES';
@@ -9,7 +11,7 @@ class Session implements SessionInterface
     public function __construct(public bool $haveSession = true, ?string $cacheExpire = null, ?string $cacheLimiter = null)
     {
         if ($haveSession) {
-            $dirName = realpath(dirname($_SERVER['PWD'])) . '/runtime/session';
+            $dirName = realpath(App::$ROOT_DIR) . '/runtime/session';
             if (!file_exists($dirName)) {
                 mkdir($dirName, 0777, true);
             }
