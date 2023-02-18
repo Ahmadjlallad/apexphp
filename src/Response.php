@@ -49,7 +49,7 @@ class Response
     {
         if ($this->responseType === self::REDIRECT) {
             $this->makeHeaders();
-            return;
+            exit(0);
         }
         $content = $this->content;
         if ($this->responseType === self::JSON) {
