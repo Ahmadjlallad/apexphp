@@ -3,6 +3,7 @@
 use Apex\src\App;
 use Apex\src\Model\User;
 use Apex\src\Model\Validation\Validator;
+use Apex\src\Session\Session;
 use Rakit\Validation\ErrorBag;
 use Rakit\Validation\Rule;
 use Rakit\Validation\RuleNotFoundException;
@@ -23,12 +24,12 @@ function validator(string $ruleName): Rule
 
 function errors(string $name = 'errors'): ErrorBag
 {
-    return App::getInstance()->session->getFlash($name) ?? new ErrorBag;
+    return session()->getFlash($name) ?? new ErrorBag;
 }
 
 function params(?string $name = null): array|null|string
 {
-    $params = App::getInstance()->session->getFlash('params');
+    $params = session()->getFlash('params');
     if (empty($params)) {
         return !empty($name) ? null : [];
     }
@@ -58,4 +59,9 @@ function vLog(mixed ...$values): array
 function infoLog(string $message): void
 {
     VarDumper::dump(sprintf("INFO AT [%s] - %s", date('y-m-d H:i:s'), $message));
+}
+
+function session(): Session
+{
+    return App::getInstance()->session;
 }
