@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Apex\src;
 
 use Apex\src\Model\Validation\Validator;
+use Apex\src\Router\Methods;
 use Apex\src\Session\Session;
 use Rakit\Validation\Validation;
 
@@ -37,6 +38,11 @@ class Request
         return true;
     }
 
+    public function validate(array $data, array $rules, array $messages = []): Validation
+    {
+        return (new Validator)->validate($data, $rules, $messages);
+    }
+
     public function sessionValidate(array $data, array $rules, array $messages = []): bool|Response
     {
         $validation = (new Validator)->validate($data, $rules, $messages);
@@ -49,44 +55,86 @@ class Request
         return true;
     }
 
-    public function input(string $prop = ''): array|null
+    public function input(string|array $prop = ''): array|string|null
     {
-        $body = $_POST;
         $inputType = INPUT_POST;
-
-        if ($this->getHttpMethod() !== 'post') {
+        $res = [];
+        if ($this->getHttpMethod() === Methods::GET->value) {
             $body = $_GET;
             $inputType = INPUT_GET;
         }
+        //@todo test this
+        $res = $this->filterInputArrayWithDefaultFlags($inputType, FILTER_DEFAULT | FILTER_SANITIZE_SPECIAL_CHARS);
         if (!empty($prop)) {
-            $prop = is_array($prop) ? $prop : [$prop];
-            $body = array_filter($body, fn($key) => in_array($key, $prop), ARRAY_FILTER_USE_KEY);
-        }
-        $res = [];
-
-        foreach ($body as $key => $value) {
-            $res[$key] = filter_input($inputType, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+            $body = array_filter($res, fn($key) => in_array($key, is_array($prop) ? $prop : [$prop]), ARRAY_FILTER_USE_KEY);
+            if (empty($body)) {
+                return null;
+            }
+            if (is_string($prop)) {
+                return $res[$prop];
+            }
+            return $body;
         }
         return $res;
     }
 
     public function getHttpMethod(): string
     {
-        return strtolower($_SERVER['REQUEST_METHOD']);
+        $method = Methods::upperCase($_SERVER['REQUEST_METHOD']);
+        if ($method === Methods::POST->value) {
+            $method = Methods::upperCase($this->postInput('_method')) ?? Methods::POST->value;
+        }
+        return $method;
     }
 
-    public function validate(array $data, array $rules, array $messages = []): Validation
+    public function postInput(string|array $search = ''): mixed
     {
-        return (new Validator)->validate($data, $rules, $messages);
+        $res = $this->filterInputArrayWithDefaultFlags(INPUT_POST, FILTER_DEFAULT);
+        if (!empty($search)) {
+            if (is_string($search)) {
+                return $res[$search] ?? null;
+            }
+            return $res ?? [];
+        }
+        return null;
+    }
+
+    function filterInputArrayWithDefaultFlags($type, $filter, $flags = [], $add_empty = true): false|array|null
+    {
+        $loopThrough = array();
+        switch ($type) {
+            case INPUT_GET :
+                $loopThrough = $_GET;
+                break;
+            case INPUT_POST :
+                $loopThrough = $_POST;
+                break;
+            case INPUT_COOKIE :
+                $loopThrough = $_COOKIE;
+                break;
+            case INPUT_SERVER :
+                $loopThrough = $_SERVER;
+                break;
+            case INPUT_ENV :
+                $loopThrough = $_ENV;
+                break;
+        }
+
+        $args = array();
+        foreach ($loopThrough as $key => $value) {
+            $args[$key] = array('filter' => $filter, 'flags' => $flags);
+        }
+
+        return filter_input_array($type, $args, $add_empty);
     }
 
     public function isPost(): bool
     {
-        return $this->getHttpMethod() === 'post';
+        return $this->getHttpMethod() === Methods::POST->value;
     }
 
     public function isGet(): bool
     {
-        return $this->getHttpMethod() === 'get';
+        return $this->getHttpMethod() === Methods::GET->value;
     }
 }

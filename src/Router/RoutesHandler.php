@@ -29,11 +29,10 @@ class RoutesHandler
     public function resolve(): Response|string
     {
         $path = $this->request->getPath();
-        $method = strtoupper($this->request->getHttpMethod());
         /**
          * @var ?Router $route
          */
-        $route = static::$routes[$method][$path] ?? null;
+        $route = static::$routes[$this->request->getHttpMethod()][$path] ?? null;
         if (!$route) {
             return App::getInstance()->views->view('404');
         }
@@ -91,7 +90,7 @@ class RoutesHandler
             return true;
         }
         if (!empty($constructor->getParameters())) {
-            throw new ReflectionException('Resolving unknown parameters in class '.$replicationClass->getName(). ' constructor '. implode(", ", $constructor->getParameters()));
+            throw new ReflectionException('Resolving unknown parameters in class ' . $replicationClass->getName() . ' constructor ' . implode(", ", $constructor->getParameters()));
         }
         return true;
 //        foreach ($constructor->getParameters() as $attribute) {

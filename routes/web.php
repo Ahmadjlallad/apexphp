@@ -7,6 +7,7 @@ use Apex\src\Middlewares\AuthMiddleware;
 use Apex\src\Router\Router;
 
 Router::get('/', [SiteController::class, 'home']);
+Router::delete('/', [SiteController::class, 'home']);
 Router::get('/contact', [SiteController::class, 'showContact']);
 Router::post('/contact', [SiteController::class, 'storeContact']);
 
