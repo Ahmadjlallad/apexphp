@@ -4,20 +4,20 @@ declare(strict_types=1);
 namespace Apex\src\Database\Query;
 
 use Apex\src\App;
+use Apex\src\Helpers\Arrays;
 use Apex\src\Model\Model;
 
 class Builder
 {
+    use Arrays;
+
     public array $bindings = [
         'select' => [],
         'from' => [],
         'join' => [],
         'where' => [],
         'groupBy' => [],
-        'having' => [],
         'order' => [],
-        'union' => [],
-        'unionOrder' => [],
     ];
     public int|null $limit = null;
     public array $where = [];
@@ -65,33 +65,42 @@ class Builder
         } else $this->bindings[$set][] = $value;
     }
 
-    public function constructWhereFromArray(string|array $query): void
+    private function constructWhereFromArray(string|array $query): void
     {
-        foreach ($query as $key => $items) {
-            if (is_string($key)) {
-                $this->whereEqual($key, $items);
-            } elseif (is_array($items) && is_string(array_key_first($items))) {
-                foreach ($items as $item => $value) {
-                    if (is_array($value)) {
-                        $this->whereIn($item, $value);
-                    } else {
-                        $this->whereEqual($item, $value);
-                    }
-                }
-            } elseif (is_string($items[0]) && count($items) >= 3) {
-                $this->where([...$items]);
+        // @todo refactor this
+        $isFirstKeyString = is_string(array_key_first($query)) || is_string($query[0]);
+        if (count($query) <= 3 && $isFirstKeyString) {
+            $this->constructWhere($query);
+        } else {
+            foreach ($query as $items) {
+                $this->constructWhere($items);
             }
         }
     }
 
-    public function whereEqual($column, $values): void
+    private function constructWhere(array $query): void
     {
-        $this->where([$column, '=', $values]);
+        if (!$this->isAssoc($query)) {
+            $this->where($query);
+            return;
+        }
+        $key = array_key_first($query);
+        $values = $query[$key];
+        if (is_array($values)) {
+            $this->whereIn($key, $values);
+            return;
+        }
+        $this->whereEqual($key, $values);
     }
 
     public function whereIn($column, $values): void
     {
         $this->where([$column, 'IN', $values]);
+    }
+
+    public function whereEqual($column, $values): void
+    {
+        $this->where([$column, '=', $values]);
     }
 
     public function prepareSelect(array|string $columns): void
@@ -154,6 +163,9 @@ class Builder
         }
         return implode(', ', array_map(fn($value) => "`$value`", array_keys($values)));
     }
+
+
+    //@todo create array trite
 
     public function prepareUpdate(array $attributes, array $old): string
     {
