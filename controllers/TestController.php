@@ -19,32 +19,4 @@ class TestController extends Controller
         $user->where(['id' => 5]);
         dd($user);
     }
-
-    public function get(Request $request, Response $response): Response
-    {
-        return $this->view('test.get');
-    }
-
-    /**
-     * @throws RuleNotFoundException
-     */
-    public function post(Request $request): Response
-    {
-        $user = User::create($this->request->input());
-        $validate = $request->sessionValidate($this->request->input(), [
-            'password' => 'required|min:6',
-            'email' => [
-                'required',
-                'email',
-                validator('unique')->model(User::class)->column('email')
-            ],
-            'confirm_password' => 'required|same:password',
-            'birth_date' => 'required|date'
-        ]);
-        if ($validate && $user->save() && $user->login()) {
-            App::getInstance()->session->setFlash('success', 'test');
-            return $this->response->redirect('/');
-        }
-        return $this->response->redirect('test.get')->with('register-errors', $user->errorBag->all());
-    }
 }

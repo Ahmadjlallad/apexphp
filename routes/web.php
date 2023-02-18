@@ -12,9 +12,9 @@ Router::get('/contact', [SiteController::class, 'showContact']);
 Router::post('/contact', [SiteController::class, 'storeContact']);
 
 Router::get('/login', [AuthController::class, 'showLogin'])->middleware(new AuthMiddleware(false));
-Router::post('/s-login', [AuthController::class, 'storeLogin'])->middleware(new AuthMiddleware(false));
-Router::get('/register', [AuthController::class, 'register'])->middleware(new AuthMiddleware(false));
-Router::post('/register', [AuthController::class, 'register'])->middleware(new AuthMiddleware(false));
+Router::post('/login', [AuthController::class, 'storeLogin'])->middleware(new AuthMiddleware(false));
+Router::get('/register', [AuthController::class, 'showRegister'])->middleware(new AuthMiddleware(false));
+Router::post('/register', [AuthController::class, 'storeRegister'])->middleware(new AuthMiddleware(false));
 Router::post('/logout', [AuthController::class, 'logout'])->middleware(new AuthMiddleware);
 Router::get('/profile', [AuthController::class, 'profile'])->middleware(new AuthMiddleware);
 

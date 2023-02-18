@@ -64,7 +64,7 @@ class Request
             $inputType = INPUT_GET;
         }
         //@todo test this
-        $res = $this->filterInputArrayWithDefaultFlags($inputType, FILTER_DEFAULT | FILTER_SANITIZE_SPECIAL_CHARS);
+        $res = $this->filterInputArrayWithDefaultFlags($inputType, FILTER_DEFAULT);
         if (!empty($prop)) {
             $body = array_filter($res, fn($key) => in_array($key, is_array($prop) ? $prop : [$prop]), ARRAY_FILTER_USE_KEY);
             if (empty($body)) {

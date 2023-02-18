@@ -16,7 +16,7 @@ use Apex\src\Views\View;
     <script src="//unpkg.com/alpinejs" defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../../css/pico.min.css">
+<!--    <link rel="stylesheet" href="../../css/pico.min.css">-->
     <title><?= $this->title ?></title>
 
     <title></title>

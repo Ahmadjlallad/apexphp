@@ -4,6 +4,7 @@
  */
 
 use Apex\models\User;
+$this->title = 'Register';
 if ($loginError = session()->getFlash('register-errors')) {
     //@todo handle errors summary
     dd($loginError);

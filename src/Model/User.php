@@ -13,13 +13,21 @@ abstract class User extends Model
 
     public function login(): bool
     {
-        $user = $this->firstWhere([$this->searchableBy => $this->email]);
+        $user = $this->makeVisible(['password'])->firstWhere([$this->searchableBy => $this->email]);
+        $error = session()->getFlash('errors');
+        if (empty($error)) {
+            $error = new ErrorBag();
+        }
         if (!$user) {
-            $this->errorBag->addError('email', 'User dose not exist with this email');
+            $error->addError('email', 'User dose not exist with this ' . $this->{$this->searchableBy});
+            session()->setFlash('errors', $error);
+            session()->setFlash('params', [...(session()->getFlash('params') ?? []), $this->searchableBy => $this->{$this->searchableBy}]);
             return false;
         }
-        if (password_verify($this->password, $user->password)) {
-            $this->errorBag->addError('password', 'Password is Incorrect');
+        if (!password_verify($this->password, $user->password)) {
+            $error->addError('password', 'Password is Incorrect');
+            session()->setFlash('params', [...(session()->getFlash('params') ?? []), $this->searchableBy => $this->{$this->searchableBy}]);
+            session()->setFlash('errors', $error);
             return false;
         }
         App::getInstance()->login($user);
