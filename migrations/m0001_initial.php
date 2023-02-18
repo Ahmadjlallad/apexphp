@@ -15,7 +15,7 @@ class m0001_initial extends Migration
             'id' => Column::add()->primaryKey(),
             'name' => Column::add()->string(),
             'email' => Column::add()->string()->unique()->notNull(),
-            'birth_date' => Column::add()->datetime(),
+            'birth_date' => Column::add()->date(),
             'password' => Column::add()->string()->notNull(),
             'created_at' => Column::add()->timestamps()->default(ColumnDefinition::CURRENT_TIMESTAMP, DefaultType::BUILTIN),
             'updated_at' => Column::add()->timestamps()

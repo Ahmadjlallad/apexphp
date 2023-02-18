@@ -14,6 +14,7 @@ class ColumnDefinition
     public const TEXT = 'TEXT';
     public const TIMESTAMP = 'TIMESTAMP';
     public const DATETIME = 'DATETIME';
+    public const DATE = 'DATE';
     public const PRIMARY_KEY = 'PRIMARY KEY';
     public const AUTO_INCREMENT = 'AUTO_INCREMENT';
     public const VARCHAR = 'VARCHAR';
@@ -133,5 +134,11 @@ class ColumnDefinition
     public function __toString(): string
     {
         return $this->statement;
+    }
+
+    public function date(): ColumnOptionsDefinition
+    {
+        $this->statement .= static::DATE . ' ';
+        return new ColumnOptionsDefinition($this->statement);
     }
 }
