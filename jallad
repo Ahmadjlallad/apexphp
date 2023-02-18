@@ -38,5 +38,5 @@ $application->add(new Up());
 try {
     $application->run();
 } catch (Exception $e) {
-    dd('running $e');
+    dd("running $e");
 }
