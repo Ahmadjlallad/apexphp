@@ -30,9 +30,7 @@ class Response
         return $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
     }
 
-    public function redirect(string $url, int $code = 302
-
-    ): static
+    public function redirect(string $url, int $code = 302): static
     {
         $this->setStatus($code);
         $this->responseType = self::REDIRECT;
@@ -63,5 +61,17 @@ class Response
     {
         $headers = implode(';', array_map(fn($key, $value) => "$key:$value", array_keys($this->headers), array_values($this->headers)));
         header($headers);
+    }
+
+    public function sendHeadersImmediately(): never
+    {
+        $this->makeHeaders();
+        exit(0);
+    }
+
+    public function with(string $key, mixed $value): static
+    {
+        session()->setFlash($key, $value);
+        return $this;
     }
 }
