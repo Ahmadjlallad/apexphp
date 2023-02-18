@@ -33,6 +33,9 @@ class View
 
     public function view(string $viewName, array $params = []): Response
     {
+        if (str_contains($viewName, '.')) {
+            $viewName = str_replace('.', DIRECTORY_SEPARATOR, $viewName);
+        }
         $view = $this->getViewContent($viewName, $params);
         $layoutContent = $this->getCurrentLayout();
         return Response::makeResponse(str_replace('@content()', $view, $layoutContent));

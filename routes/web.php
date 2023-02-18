@@ -19,3 +19,5 @@ Router::get('/profile', [AuthController::class, 'profile'])->middleware(new Auth
 
 
 Router::get('/test', [TestController::class, 'queryTest'])->middleware(new AuthMiddleware);
+Router::get('/test/get', [TestController::class, 'get'])->middleware(new AuthMiddleware(false));
+Router::post('/test/post', [TestController::class, 'post'])->middleware(new AuthMiddleware(false));

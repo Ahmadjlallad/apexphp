@@ -31,7 +31,8 @@ class Request
         $validation = (new Validator)->validate($data, $rules, $messages);
         if ($validation->fails()) {
             $this->session->setFlash($name, $validation->errors());
-            return App::getInstance()->response->back();
+            $response = App::getInstance()->response->back();
+            $response->sendHeadersImmediately();
         }
         return true;
     }
@@ -42,7 +43,8 @@ class Request
         if ($validation->fails()) {
             $this->session->setFlash('errors', $validation->errors());
             $this->session->setFlash('params', $this->input());
-            return App::getInstance()->response->back();
+            $response = App::getInstance()->response->back();
+            $response->sendHeadersImmediately();
         }
         return true;
     }

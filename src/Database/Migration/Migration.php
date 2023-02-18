@@ -21,6 +21,10 @@ abstract class Migration
     public function save(): void
     {
         $statement = implode(";", $this->savedStatements);
+        if (empty($statement)) {
+            vLog('empty statement');
+            return;
+        }
         VarDumper::dump($statement);
         $this->pdo->exec($statement);
     }
@@ -41,7 +45,7 @@ abstract class Migration
      * @param array $columns array{string: string}
      * @return void
      */
-    public function createTableIfNotExiest(string $table, array $columns): void
+    public function createTableIfNotExist(string $table, array $columns): void
     {
         $this->savedStatements[] = $this->schemaBuilder->create($table, $columns, true);
     }
@@ -50,8 +54,12 @@ abstract class Migration
      * @param $foreignKeyConfig array{table: string, fTable: string, fColumn: string, pointsOn: string }
      * @return void
      */
-    public function createForeginKey(array $foreignKeyConfig): void
+    public function createForeignKey(array $foreignKeyConfig): void
     {
         $this->savedStatements[] = $this->schemaBuilder->addForeignKey($foreignKeyConfig);
+    }
+    public function dropTable(string $tableName): void
+    {
+        $this->savedStatements[] = $this->schemaBuilder->dropTable($tableName);
     }
 }

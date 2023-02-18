@@ -3,6 +3,9 @@
 
 
 use Apex\src\Console\Application;
+use Apex\src\Console\Migration\Create;
+use Apex\src\Console\Migration\Migration;
+use Apex\src\Console\Migration\Up;
 use Apex\src\Console\Model\Model;
 use Apex\src\Console\Serve;
 use Apex\src\Database\Database;
@@ -28,10 +31,12 @@ $application = new Application();
 
 $application->add(new Serve('serve'));
 $application->add(new Model((new Database($config['db']))->pdo));
+$application->add(new Create());
+$application->add(new Up());
 
 
 try {
     $application->run();
 } catch (Exception $e) {
-    dd('running $e');
+    dd("running $e");
 }
