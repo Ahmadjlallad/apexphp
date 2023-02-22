@@ -12,11 +12,10 @@ class Create extends Migration
 {
     protected function configure()
     {
-        $this
-            ->addArgument('name', InputArgument::REQUIRED, 'migration file name');
+        $this->addArgument('name', InputArgument::REQUIRED, 'migration file name');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $migrationName = $input->getArgument('name');
         if (preg_match('/[\'^£$%&*()}{@#~?><,|=+¬-]/', $migrationName)) {
@@ -29,6 +28,7 @@ class Create extends Migration
             $output->writeln('<error>Couldn\'t create a migration file</error>');
             return Command::FAILURE;
         }
+        $output->writeln("<info>Migration file created successfully $migrationName</info>");
         return Command::SUCCESS;
     }
 }
