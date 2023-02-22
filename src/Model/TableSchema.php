@@ -13,6 +13,13 @@ use Symfony\Component\VarDumper\VarDumper;
 trait TableSchema
 {
 
+    private ?string $primaryKey = null;
+
+    public function getTablePrimaryKey()
+    {
+//        show index from users where Key_name = 'PRIMARY';
+    }
+
     /**
      * @throws Exception
      */

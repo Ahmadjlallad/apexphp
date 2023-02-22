@@ -21,4 +21,13 @@ class Processor
     {
         return $this->connection->prepare($statement);
     }
+
+    public function query(string $query, array $params = [], $useAssoc = false): \PDOStatement
+    {
+        $statement = $this->connection->prepare($query);
+        foreach ($params as $key => $param) {
+            $statement->bindValue($useAssoc ? "$key" : '?', $param);
+        }
+        return $statement;
+    }
 }
