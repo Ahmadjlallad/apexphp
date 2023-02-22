@@ -46,7 +46,6 @@ class ExecuteMigrations
                 /** @var Migration $currentMigration */
                 $currentMigration = new $currentMigration($this->pdo, $this->builder);
                 $currentMigration->up();
-
             } finally {
                 try {
                     $currentMigration->save();
@@ -97,8 +96,8 @@ class ExecuteMigrations
      */
     private function saveMigrations(array $migrations): void
     {
-        $migrations = implode(', ', array_map(fn($migration) => "('$migration')", $migrations));
-        $statement = $this->pdo->prepare("INSERT INTO migrations (migration) VALUES $migrations");
+        $migrations = implode(', ', array_map(fn($migration) => "('$migration', now())", $migrations));
+        $statement = $this->pdo->prepare("INSERT INTO migrations (migration, created_at) VALUES $migrations");
         $statement->execute();
     }
 }
