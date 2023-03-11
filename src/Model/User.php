@@ -30,12 +30,12 @@ abstract class User extends Model
             session()->setFlash('errors', $error);
             return false;
         }
-        App::getInstance()->login($user);
+        app()->login($user);
         return true;
     }
 
     public function logout(): void
     {
-        App::getInstance()->logout();
+        app()->logout();
     }
 }

@@ -14,7 +14,7 @@ class Request
 
     public function __construct()
     {
-        $this->session = App::getInstance()->session;
+        $this->session = app()->session;
     }
 
     public function getPath(): string
@@ -32,7 +32,7 @@ class Request
         $validation = (new Validator)->validate($data, $rules, $messages);
         if ($validation->fails()) {
             $this->session->setFlash($name, $validation->errors());
-            $response = App::getInstance()->response->back();
+            $response = app()->response->back();
             $response->sendHeadersImmediately();
         }
         return true;
@@ -49,7 +49,7 @@ class Request
         if ($validation->fails()) {
             $this->session->setFlash('errors', $validation->errors());
             $this->session->setFlash('params', $this->input());
-            $response = App::getInstance()->response->back();
+            $response = app()->response->back();
             $response->sendHeadersImmediately();
         }
         return true;

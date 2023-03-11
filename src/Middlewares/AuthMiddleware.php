@@ -27,8 +27,8 @@ class AuthMiddleware implements MiddlewareInterface
             return $next($request);
         }
         if (!$this->haveToBeAuthenticated) {
-            return App::getInstance()->response->back();
+            return app()->response->back();
         }
-        return App::getInstance()->response->redirect('/', 401);
+        return app()->response->redirect('/', 401);
     }
 }

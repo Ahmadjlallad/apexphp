@@ -13,7 +13,7 @@ if ($loginError = session()->getFlash('register-errors')) {
 
 <div class="p-0 sm:p-12 mx-auto max-w-md px-6 py-12 bg-white border-0 shadow-lg sm:rounded-3xl register">
     <h1 class="text-2xl font-bold mb-8">Create an Account</h1>
-    <form action="/test/post" method="post">
+    <form method="post">
         <div class="relative z-0 w-full mb-5">
             <input value="<?= params('name') ?>" type="text" name="name" id="name" class="register-inputs">
             <label for="name" class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500">Enter name</label>

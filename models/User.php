@@ -18,6 +18,7 @@ class User extends Authenticatable
 {
     public string|null $confirm_password = null;
     protected array $fillable = ['name', 'password', 'email', 'birth_date'];
+    protected string $table = 'users';
 
     public function save(): bool
     {

@@ -21,7 +21,7 @@ class AuthController extends Controller
         if ($request->sessionValidate($request->input(), ['email' => ['required', 'email'], 'password' => 'required'])) {
             $user = new User($request->input());
             if ($user->login()) {
-                App::getInstance()->session->remove('user');
+                app()->session->remove('user');
                 return $this->response->redirect('/');
             }
             return $this->response->back()->with('user-error', ['attr' => $user->getAttributes(), 'error' => $user->errorBag]);
@@ -51,7 +51,7 @@ class AuthController extends Controller
             'birth_date' => 'required|date'
         ]);
         if ($validate && $user->save() && $user->login()) {
-            App::getInstance()->session->setFlash('success', 'test');
+            app()->session->setFlash('success', 'test');
             return $this->response->redirect('/');
         }
         return $this->response->redirect('auth.register')->with('register-errors', $user->errorBag->all());
