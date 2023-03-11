@@ -25,16 +25,29 @@ class Router extends AbstractRouter
 
     public static function post(string $path, Closure|callable|array|string|null $action): static
     {
-        $router = new static(Methods::POST->value, $path, $action);
+        return self::makeRoute($path, $action, Methods::POST);
+    }
+
+    private static function makeRoute(string $path, string|Closure|null|callable|array $action, Methods $method): static
+    {
+        $router = new static($method->value, $path, $action);
         RoutesHandler::$routes[$router->method][$path] = $router;
         return $router;
     }
 
     public static function get(string $path, string|Closure|null|callable|array $action): static
     {
-        $router = new static(Methods::GET->value, $path, $action);
-        RoutesHandler::$routes[$router->method][$path] = $router;
-        return $router;
+        return self::makeRoute($path, $action, Methods::GET);
+    }
+
+    public static function delete(string $path, string|Closure|null|callable|array $action): static
+    {
+        return self::makeRoute($path, $action, Methods::DELETE);
+    }
+
+    public static function put(string $path, string|Closure|null|callable|array $action): static
+    {
+        return self::makeRoute($path, $action, Methods::PUT);
     }
 
     /**

@@ -13,44 +13,48 @@ class AuthController extends Controller
 {
     public function showLogin(): Response
     {
-        $user = new User;
-        if (!empty($attr = app()->session->getFlash('user'))) {
-            $user->fill($attr['attr']);
-            $user->errorBag->margeErrorBadges($attr['error']);
-        }
-        return $this->view('login', ['user' => $user]);
+        return $this->view('auth.login');
     }
 
     public function storeLogin(Request $request): Response
     {
-        $validation = $request->validate($request->input(), ['email' => ['required', 'email'], 'password' => 'required']);
-        $user = new User($request->input());
-        if (!$validation->fails() && $user->login()) {
-            app()->session->remove('user');
-            return $this->response->redirect('/');
+        if ($request->sessionValidate($request->input(), ['email' => ['required', 'email'], 'password' => 'required'])) {
+            $user = new User($request->input());
+            if ($user->login()) {
+                app()->session->remove('user');
+                return $this->response->redirect('/');
+            }
+            return $this->response->back()->with('user-error', ['attr' => $user->getAttributes(), 'error' => $user->errorBag]);
         }
-        app()->session->setFlash('user', ['attr' => $user->getAttributes(), 'error' => $user->errorBag]);
         return $this->response->back();
+    }
+
+    public function showRegister(Request $request, Response $response): Response
+    {
+        return $this->view('auth.register');
     }
 
     /**
      * @throws RuleNotFoundException
      */
-    public function register(Request $request): Response
+    public function storeRegister(Request $request): Response
     {
-        $user = User::create();
-        if ($this->request->isPost()) {
-            $user->fill($this->request->input());
-            $v = ['password' => 'required|min:6', 'email' => ['required', 'email', validator('unique')->model(User::class)->column('email')], 'confirm_password' => 'required|same:password'];
-            $validate = $this->request->validate($this->request->input(), $v);
-            if (!$validate->fails()) {
-                $user->save();
-                app()->session->setFlash('success', 'test');
-                return $this->response->redirect('/');
-            }
-            $user->errorBag->margeErrorBadges($validate->errors());
+        $user = User::create($this->request->input());
+        $validate = $request->sessionValidate($this->request->input(), [
+            'password' => 'required|min:6',
+            'email' => [
+                'required',
+                'email',
+                validator('unique')->model(User::class)->column('email')
+            ],
+            'confirm_password' => 'required|same:password',
+            'birth_date' => 'required|date'
+        ]);
+        if ($validate && $user->save() && $user->login()) {
+            app()->session->setFlash('success', 'test');
+            return $this->response->redirect('/');
         }
-        return $this->view('register', ['user' => $user]);
+        return $this->response->redirect('auth.register')->with('register-errors', $user->errorBag->all());
     }
 
     public function logout(Response $response): Response
@@ -58,6 +62,7 @@ class AuthController extends Controller
         auth()->logout();
         return $response->redirect('/');
     }
+
     public function profile(Response $response): Response
     {
         return $this->view('profile');

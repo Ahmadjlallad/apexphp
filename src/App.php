@@ -24,6 +24,7 @@ class App
     public View $views;
     public Database $db;
     public ?Model $user = null;
+    public Container $container;
     private ?string $userClass;
 
     public function __construct($config = [])
