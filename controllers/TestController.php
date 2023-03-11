@@ -42,7 +42,7 @@ class TestController extends Controller
             'birth_date' => 'required|date'
         ]);
         if ($validate && $user->save() && $user->login()) {
-            App::getInstance()->session->setFlash('success', 'test');
+            app()->session->setFlash('success', 'test');
             return $this->response->redirect('/');
         }
         return $this->response->redirect('test.get')->with('register-errors', $user->errorBag->all());

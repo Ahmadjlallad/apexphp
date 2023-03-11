@@ -35,12 +35,12 @@ class RoutesHandler
          */
         $route = static::$routes[$method][$path] ?? null;
         if (!$route) {
-            return App::getInstance()->views->view('404');
+            return app()->views->view('404');
         }
         $routeAction = $route->action;
         if (is_array($routeAction)) {
             /** @var Controller $controller */
-            $controller = new $routeAction[0](App::getInstance()->request);
+            $controller = new $routeAction[0](app()->request);
 
             foreach ($route->middlewares as $middleware) {
                 $result = $middleware->handle($controller->request, function (Request $request) use ($controller) {
@@ -76,7 +76,7 @@ class RoutesHandler
             }
         }
         if (is_string($routeAction)) {
-            return App::getInstance()->views->viewContent($routeAction);
+            return app()->views->viewContent($routeAction);
         }
         return call_user_func($routeAction);
     }

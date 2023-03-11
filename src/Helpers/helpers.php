@@ -14,6 +14,11 @@ function NOT_IMPLEMENTED(): void
     dd('IMPLEMENTED');
 }
 
+function app(): App
+{
+    return App::getInstance();
+}
+
 /**
  * @throws RuleNotFoundException
  */
@@ -41,7 +46,7 @@ function params(?string $name = null): array|null|string
 
 function auth(): ?User
 {
-    return App::getInstance()->user;
+    return app()->user;
 }
 
 function vLog(mixed ...$values): array
@@ -52,6 +57,7 @@ function vLog(mixed ...$values): array
     }
     return $vars;
 }
+
 /**
  * @param string $message
  * @return void
@@ -63,5 +69,5 @@ function infoLog(string $message): void
 
 function session(): Session
 {
-    return App::getInstance()->session;
+    return app()->session;
 }

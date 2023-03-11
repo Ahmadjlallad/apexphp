@@ -15,7 +15,7 @@ class Up extends Migration
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        (new ExecuteMigrations(App::getInstance()->db->pdo, new SchemaBuilder()))->applyMigration();
+        (new ExecuteMigrations(app()->db->pdo, new SchemaBuilder()))->applyMigration();
         return Command::SUCCESS;
     }
 }

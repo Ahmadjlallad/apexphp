@@ -24,7 +24,7 @@ class Builder
 
     public function __construct(protected Model $model)
     {
-        $this->model->setConnection(App::getInstance()->db->pdo);
+        $this->model->setConnection(app()->db->pdo);
     }
 
     public function get(array $columns): array

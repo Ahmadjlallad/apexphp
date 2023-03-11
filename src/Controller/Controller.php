@@ -13,7 +13,7 @@ class Controller extends AbstractController
     public function __construct(public Request $request, Response $response = null)
     {
         if (empty($response)) {
-            $response = App::getInstance()->response;
+            $response = app()->response;
         }
         $this->response = $response;
     }
@@ -25,7 +25,7 @@ class Controller extends AbstractController
 
     public function setLayout(string $layoutName): void
     {
-        App::getInstance()->views->setLayout($layoutName);
+        app()->views->setLayout($layoutName);
     }
 
     public function __get(string $name)
@@ -43,7 +43,7 @@ class Controller extends AbstractController
 
     protected function view(string $viewName, array $params = []): Response
     {
-        return App::getInstance()->views->view($viewName, $params);
+        return app()->views->view($viewName, $params);
     }
 
     protected function asJson(array $json): Response

@@ -183,7 +183,7 @@ abstract class Model
      */
     public function getConnection(): PDO
     {
-        return App::getInstance()->db->pdo;
+        return app()->db->pdo;
     }
 
     public function setConnection(PDO $pdo): void

@@ -22,12 +22,12 @@ abstract class User extends Model
             $this->errorBag->addError('password', 'Password is Incorrect');
             return false;
         }
-        App::getInstance()->login($user);
+        app()->login($user);
         return true;
     }
 
     public function logout(): void
     {
-        App::getInstance()->logout();
+        app()->logout();
     }
 }

@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function showLogin(): Response
     {
         $user = new User;
-        if (!empty($attr = App::getInstance()->session->getFlash('user'))) {
+        if (!empty($attr = app()->session->getFlash('user'))) {
             $user->fill($attr['attr']);
             $user->errorBag->margeErrorBadges($attr['error']);
         }
@@ -26,10 +26,10 @@ class AuthController extends Controller
         $validation = $request->validate($request->input(), ['email' => ['required', 'email'], 'password' => 'required']);
         $user = new User($request->input());
         if (!$validation->fails() && $user->login()) {
-            App::getInstance()->session->remove('user');
+            app()->session->remove('user');
             return $this->response->redirect('/');
         }
-        App::getInstance()->session->setFlash('user', ['attr' => $user->getAttributes(), 'error' => $user->errorBag]);
+        app()->session->setFlash('user', ['attr' => $user->getAttributes(), 'error' => $user->errorBag]);
         return $this->response->back();
     }
 
@@ -45,7 +45,7 @@ class AuthController extends Controller
             $validate = $this->request->validate($this->request->input(), $v);
             if (!$validate->fails()) {
                 $user->save();
-                App::getInstance()->session->setFlash('success', 'test');
+                app()->session->setFlash('success', 'test');
                 return $this->response->redirect('/');
             }
             $user->errorBag->margeErrorBadges($validate->errors());

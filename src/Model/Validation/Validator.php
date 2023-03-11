@@ -13,6 +13,6 @@ class Validator extends \Rakit\Validation\Validator
     public function __construct(array $messages = [])
     {
         parent::__construct($messages);
-        $this->addValidator('unique', new UniqueRule(App::getInstance()->db->pdo));
+        $this->addValidator('unique', new UniqueRule(app()->db->pdo));
     }
 }
