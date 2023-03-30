@@ -3,7 +3,6 @@
 namespace Apex\src\Model;
 
 
-use Apex\src\App;
 use Apex\src\Database\Processor;
 use Apex\src\Database\Query\Builder;
 use PDO;
@@ -13,7 +12,7 @@ use ReflectionClass;
 abstract class Model
 {
     public ErrorBag $errorBag;
-    public string $primaryKey = 'id';
+    public ?string $primaryKey = null;
     public bool $exists = false;
     protected string $table = '';
     protected array $attributes = [];
@@ -105,6 +104,9 @@ abstract class Model
     {
         $this->getTable();
         $this->setBuilder(new Builder($this));
+        if (empty($this->primaryKey)) {
+            $this->primaryKey = $this->getPrimaryId();
+        }
         $this->errorBag = new ErrorBag();
     }
 
@@ -118,6 +120,27 @@ abstract class Model
             $this->table = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $reflect->getShortName()));
         }
         return $this->table;
+    }
+
+    public function getPrimaryId()
+    {
+        return $this->getBuilder()->getTablePrimaryKey($this->getTable());
+    }
+
+    /**
+     * @return Builder
+     */
+    protected function getBuilder(): Builder
+    {
+        return $this->_builder;
+    }
+
+    /**
+     * @param Builder $builder
+     */
+    protected function setBuilder(Builder $builder): void
+    {
+        $this->_builder = $builder;
     }
 
     static public function create(array $attributes = []): static
@@ -163,22 +186,6 @@ abstract class Model
     }
 
     /**
-     * @return Builder
-     */
-    protected function getBuilder(): Builder
-    {
-        return $this->_builder;
-    }
-
-    /**
-     * @param Builder $builder
-     */
-    protected function setBuilder(Builder $builder): void
-    {
-        $this->_builder = $builder;
-    }
-
-    /**
      * @return PDO
      */
     public function getConnection(): PDO
@@ -194,10 +201,15 @@ abstract class Model
     private function prepareModel(array $modelValues): static
     {
         $model = new static();
-        $model->exists = true;
         $model->fill($modelValues, true);
-        $model->hideAttributes($this->hidden);
+        $this->prepareExistingModels();
         return $model;
+    }
+
+    public function prepareExistingModels(): void
+    {
+        $this->exists = true;
+        $this->hideAttributes($this->hidden);
     }
 
     private function hideAttributes(array $modifiedHidden = null): void
@@ -225,6 +237,25 @@ abstract class Model
         $model->exists = true;
         $model->getBuilder()->prepareSelect($columns);
         return $model;
+    }
+
+    public static function one(): ?static
+    {
+        if (!empty($model = static::select()->limit(1)->get(1))) {
+            return $model[0];
+        }
+        return null;
+    }
+
+    public function limit(int $limit): static
+    {
+        $this->getBuilder()->limit = $limit;
+        return $this;
+    }
+
+    public static function getTableName(): string
+    {
+        return (new static())->getTable();
     }
 
     public function query(): Builder
@@ -264,6 +295,9 @@ abstract class Model
 
     public function __get(string $name)
     {
+        if (method_exists($this, $name)) {
+            return $this->$name()->get();
+        }
         if (!empty($this->attributes[$name])) {
             return $this->attributes[$name];
         }
@@ -322,5 +356,15 @@ abstract class Model
     {
         $this->hidden = array_merge($this->hidden, $array);
         return $this;
+    }
+
+    public function belongsToMany(string $model, string $throwModel, array $throwRelation, array $targetTable)
+    {
+        return $this->getBuilder()->belongsToMany($this, $model, $throwModel, $throwRelation, $targetTable);
+    }
+
+    public function hasMany(string $model, string $foreignKey, string $localKey)
+    {
+        return $this->getBuilder()->hasMay($this, $model, $foreignKey, $localKey);
     }
 }

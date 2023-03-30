@@ -11,8 +11,8 @@ class m1676997835_options extends Migration
     {
         $this->createTable('options', [
             'option_id' => Column::add()->primaryKey(),
-            'name' => Column::add()->string(),
-            'value' => Column::add()->string(),
+            'option_name' => Column::add()->string(),
+            'option_value' => Column::add()->string(),
             'created_at' => Column::add()->timestamps(),
             'updated_at' => Column::add()->timestamps()
         ]);

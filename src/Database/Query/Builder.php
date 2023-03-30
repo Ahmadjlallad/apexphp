@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace Apex\src\Database\Query;
 
-use Apex\src\App;
 use Apex\src\Helpers\Arrays;
 use Apex\src\Model\Model;
+use Apex\src\Model\TableSchema;
 
 class Builder
 {
     use Arrays;
+    use TableSchema;
 
     public array $bindings = [
         'select' => [],
@@ -174,5 +175,15 @@ class Builder
         $primaryKey = $this->model->primaryKey;
         $id = $this->model->{$primaryKey};
         return "UPDATE $table SET $columns WHERE $table.$primaryKey=$id";
+    }
+
+    public function hasMay(Model $parent, string $model, string $foreignKey, string $localKey): HasMany
+    {
+        return new HasMany($parent, $model, $foreignKey, $localKey);
+    }
+
+    public function belongsToMany(Model $parent, string $model, string $throwModel, array $throwRelation, array $targetTable): BelongsToMany
+    {
+        return new BelongsToMany($parent, $model, $throwModel, $throwRelation, $targetTable);
     }
 }

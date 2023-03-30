@@ -11,7 +11,7 @@ class m1676997866_category_option extends Migration
         $this->createTable('category_option', [
             'category_option_id' => Column::add()->primaryKey(),
             'option_id' => Column::add()->bigint(),
-            'category_id' => Column::add()->bigint()
+            'category_id' => Column::add()->bigint(),
         ]);
         $this->createForeignKey(['table' => 'category_option', 'pointsOn' => 'category_id', 'fTable' => 'categories', 'fColumn' => 'category_id']);
         $this->createForeignKey(['table' => 'category_option', 'pointsOn' => 'option_id', 'fTable' => 'options', 'fColumn' => 'option_id']);

@@ -24,7 +24,7 @@ if ($loginError = session()->getFlash('register-errors')) {
                 />
             </div>
             <div class="md:w-8/12 lg:w-5/12 lg:ml-20">
-                <form action="/login" class="test" method="post">
+                <form class="test" method="post">
                     <!-- Email input -->
                     <div class="mb-6">
                         <label for="email">email</label>

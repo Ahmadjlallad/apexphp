@@ -50,11 +50,12 @@ class AuthController extends Controller
             'confirm_password' => 'required|same:password',
             'birth_date' => 'required|date'
         ]);
-        if ($validate && $user->save() && $user->login()) {
+        if ($validate && $user->save()) {
+            app()->login($user);
             app()->session->setFlash('success', 'test');
             return $this->response->redirect('/');
         }
-        return $this->response->redirect('auth.register')->with('register-errors', $user->errorBag->all());
+        return $this->response->redirect('/auth.register')->with('register-errors', $user->errorBag->all());
     }
 
     public function logout(Response $response): Response
@@ -65,6 +66,6 @@ class AuthController extends Controller
 
     public function profile(Response $response): Response
     {
-        return $this->view('profile');
+        return $this->view('auth.profile');
     }
 }

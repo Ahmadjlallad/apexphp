@@ -5,6 +5,8 @@ namespace Apex\src\Controller;
 use Apex\src\App;
 use Apex\src\Request;
 use Apex\src\Response;
+use Exception;
+use phpDocumentor\Reflection\Types\Expression;
 
 class Controller extends AbstractController
 {
@@ -18,9 +20,15 @@ class Controller extends AbstractController
         $this->response = $response;
     }
 
+    /**
+     * @throws Exception
+     */
     public function callAction(string $method, array $params = []): mixed
     {
-        return $this->{$method}(...array_values($params));
+        if (empty($returnFromController = $this->{$method}(...array_values($params)))) {
+            throw new Exception('Nothing Returned from the controller');
+        }
+        return $returnFromController;
     }
 
     public function setLayout(string $layoutName): void

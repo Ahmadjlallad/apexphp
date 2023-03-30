@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Apex\src;
 
 use Apex\src\Database\Database;
+use Apex\src\Database\Processor;
 use Apex\src\Model\Model;
 use Apex\src\Model\User;
 use Apex\src\Router\RoutesHandler;
@@ -23,7 +24,7 @@ class App
     public Session $session;
     public View $views;
     public Database $db;
-    public ?Model $user = null;
+    public ?User $user = null;
     public Container $container;
     private ?string $userClass;
 
@@ -33,6 +34,7 @@ class App
         self::$ROOT_DIR = static::$config['ROOT_DIR'] ?? dirname(__DIR__);
         self::$VIEWS_DIR = static::$config['VIEWS_DIR'] ?? self::$ROOT_DIR . '/resources/views';
         static::$instance = $this;
+        $this->container = new Container();
         $this->session = new Session(self::$config['haveSession'] ?? true);
         $this->request = new Request();
         $this->response = new Response();
@@ -40,6 +42,7 @@ class App
         $this->views = new View();
         $this->db = new Database(static::$config['db']);
         $this->userClass = $config['userClass'] ?? null;
+        $this->diList();
         if ($this->session->isStarted()) {
             $this->loginFromSession();
         }
@@ -87,5 +90,10 @@ class App
     {
         $this->session->remove('user_from_session');
         $this->user = null;
+    }
+
+    public function diList()
+    {
+        $this->container->bind(Processor::class, fn() => new Processor($this->db->pdo));
     }
 }

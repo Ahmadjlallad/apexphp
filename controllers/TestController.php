@@ -2,8 +2,9 @@
 
 namespace Apex\controllers;
 
+use Apex\models\Categories;
+use Apex\models\Options;
 use Apex\models\User;
-use Apex\src\App;
 use Apex\src\Controller\Controller;
 use Apex\src\Request;
 use Apex\src\Response;
@@ -13,11 +14,10 @@ class TestController extends Controller
 {
     public function queryTest(Request $request, Response $response)
     {
-        $user = \Apex\models\User::select()->makeVisible(['password']);
-        $user->where(['id' => [1, 10]]);
-        $user->where([['mojo' => ['bojo', '10']], ['ahmd' => 'joj'], ['id', '<', 5555]]);
-        $user->where(['id' => 5]);
-        dd($user);
+        $request->sessionValidate($request->input('category_id'), ['category_id' => 'string']);
+        $category = Categories::select()->firstWhere(['category_id' => 1]);
+//        $category = Categories::create();
+        dd($category->options);
     }
 
     public function get(Request $request, Response $response): Response

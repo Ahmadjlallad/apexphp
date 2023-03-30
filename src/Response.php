@@ -34,7 +34,7 @@ class Response
     {
         $this->setStatus($code);
         $this->responseType = self::REDIRECT;
-        $this->headers['location'] = $url;
+        $this->headers['location'] = str_replace('.', '/', $url);
         return $this;
     }
 

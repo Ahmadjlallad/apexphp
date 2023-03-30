@@ -3,6 +3,7 @@
 namespace Apex\src\Model;
 
 use Apex\src\Database\Migration\Schema\Definition\MysqlTypes;
+use Apex\src\Database\Processor;
 use Apex\src\Database\Query\ColumnBlueprint;
 use Exception;
 use PDO;
@@ -15,9 +16,16 @@ trait TableSchema
 
     private ?string $primaryKey = null;
 
-    public function getTablePrimaryKey()
+    public function getTablePrimaryKey(string $table)
     {
-//        show index from users where Key_name = 'PRIMARY';
+        /**
+         * @var Processor $processor
+         */
+        $processor = app()->container->resolve(Processor::class);
+        $statement = $processor->query("show index from $table where Key_name = 'PRIMARY'");
+        $statement->execute();
+        $this->primaryKey = $statement->fetch(PDO::FETCH_ASSOC)['Column_name'];
+        return $this->primaryKey;
     }
 
     /**

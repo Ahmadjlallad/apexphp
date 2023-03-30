@@ -71,3 +71,13 @@ function session(): Session
 {
     return app()->session;
 }
+
+function request(): \Apex\src\Request
+{
+    return app()->request;
+}
+
+function response(): \Apex\src\Response
+{
+    return app()->response;
+}

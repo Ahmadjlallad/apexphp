@@ -16,6 +16,7 @@ use Carbon\Carbon;
  */
 class User extends Authenticatable
 {
+    public ?string $primaryKey = 'user_id';
     public string|null $confirm_password = null;
     protected array $fillable = ['name', 'password', 'email', 'birth_date'];
     protected string $table = 'users';

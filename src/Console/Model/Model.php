@@ -43,7 +43,7 @@ class Model extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file = file_get_contents(__DIR__ . "/model.example");
-        $modelName = $input->getArgument('name');
+        $modelName = ucfirst($input->getArgument('name'));
         $file = str_replace('@modelName', $modelName, $file);
         $docBlock = $this->getTableSchemaDocBlock($this->PDO, $input->getOption('table') ?? $modelName);
         $file = str_replace('@docBlock', $docBlock, $file);

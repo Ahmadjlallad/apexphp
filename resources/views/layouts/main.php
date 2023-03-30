@@ -13,13 +13,13 @@ use Apex\src\Views\View;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/dist/css/app.css" rel="stylesheet">
     <script src="/dist/js/app.js" defer></script>
-    <script src="//unpkg.com/alpinejs" defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--    <link rel="stylesheet" href="../../css/pico.min.css">-->
     <title><?= $this->title ?></title>
 
-    <title></title>
+    <meta name="color-scheme" content="dark">
+
 </head>
 <body>
 <nav class="bg-gray-800" x-data="{ open: false }">
@@ -73,9 +73,9 @@ use Apex\src\Views\View;
                         <a href="/contact"
                            class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</a>
                         <?php if (empty(auth())) { ?>
-                                    <a href="/login"
+                                    <a href="/auth/login"
                                        class="ml-auto text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                                    <a href="/register"
+                                    <a href="/auth/register"
                                        class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">register</a>
                         <?php } ?>
                     </div>
@@ -127,7 +127,7 @@ use Apex\src\Views\View;
                                    id="user-menu-item-0">Your Profile</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1"
                                    id="user-menu-item-1">Settings</a>
-                                <form action="/logout" method="post">
+                                <form action="/auth/logout" method="post">
                                     <button class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1"
                                             id="user-menu-item-2">Logout
                                     </button>
