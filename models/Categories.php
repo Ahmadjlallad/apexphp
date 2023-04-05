@@ -33,4 +33,14 @@ class Categories extends Model
     {
         return $this->hasMany(CategoryOption::class, 'category_id', 'category_id');
     }
+
+    public function groupedOptions(): array
+    {
+        $groups = [];
+        foreach ($this->options as $option) {
+            $groups[$option->option_type][] = $option;
+
+        }
+        return $groups;
+    }
 }

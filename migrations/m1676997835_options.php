@@ -13,6 +13,7 @@ class m1676997835_options extends Migration
             'option_id' => Column::add()->primaryKey(),
             'option_name' => Column::add()->string(),
             'option_value' => Column::add()->string(),
+            'option_type' => Column::add()->string(),
             'created_at' => Column::add()->timestamps(),
             'updated_at' => Column::add()->timestamps()
         ]);

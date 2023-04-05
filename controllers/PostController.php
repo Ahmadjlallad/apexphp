@@ -22,7 +22,7 @@ class PostController extends Controller
     {
         $request->sessionValidate($request->input(), ['category_id' => 'required']);
         $category = Categories::select()->firstWhere(['category_id' => $request->input()['category_id']]);
-        $options  = $category->options;
+        $options  = $category->groupedOptions();
         return $this->view('post.create.options', ['categories' => $category, 'options' => $options]);
     }
 }

@@ -14,9 +14,31 @@ class TestController extends Controller
 {
     public function queryTest(Request $request, Response $response)
     {
-        $request->sessionValidate($request->input('category_id'), ['category_id' => 'string']);
+//        $request->sessionValidate($request->input('category_id'), ['category_id' => 'string']);
         $category = Categories::select()->firstWhere(['category_id' => 1]);
 //        $category = Categories::create();
+
+
+//        $colors = [
+//            'black' => '#000000',
+//            'blue' => '#0000ff',
+//            'brown' => '#a52a2a',
+//            'green' => '#008000',
+//            'grey' => '#808080',
+//            'orange' => '#ffa500',
+//            'red' => 'ff0000',
+//            'violet' => '#ee82ee',
+//            'white' => '#ffffff',
+//            'yellow' => '#ffff00',
+//        ];
+//
+//        foreach ($colors as $colorName => $hexName) {
+//            $option = new Options(['option_name' => $colorName, 'option_value' => $hexName]);
+//            $option->save();
+//            $category->addOptionToCategory($option);
+//        }
+
+
         dd($category->options);
     }
 
